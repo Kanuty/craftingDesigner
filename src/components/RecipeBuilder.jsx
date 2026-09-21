@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import {
-  Plus, Search, Edit2, Trash2, Scroll, ArrowRight, Clock, Shield, Hammer,
-  X, Check, AlertTriangle, Layers
+  Plus, Search, Edit2, Trash2, Scroll, ArrowRight, Clock,
+  X, Check, Layers
 } from 'lucide-react';
 import { getItemIconComponent } from './ItemManager';
 import { getConditionIconComponent } from './ConditionManager';
+import { useTheme } from '../utils/theme';
 
 export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
+  const { theme } = useTheme();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOutputFilter, setSelectedOutputFilter] = useState('All');
   const [editingRecipe, setEditingRecipe] = useState(null);
@@ -137,25 +139,25 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 font-mono">
       {/* Header Actions */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-800 p-4 rounded-xl border border-slate-700">
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+      <div className={`flex flex-col md:flex-row justify-between items-start md:items-center gap-3 p-3 rounded-xl border ${theme.panelBg} ${theme.border}`}>
+        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
           <div className="relative flex-1 md:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${theme.textMuted}`} />
             <input
               type="text"
               placeholder="Search recipes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-slate-900 text-slate-100 pl-9 pr-4 py-2 rounded-lg border border-slate-700 focus:outline-none focus:border-indigo-500 text-sm"
+              className={`w-full pl-9 pr-3 py-1.5 rounded text-xs focus:outline-none ${theme.inputBg}`}
             />
           </div>
 
           <select
             value={selectedOutputFilter}
             onChange={(e) => setSelectedOutputFilter(e.target.value)}
-            className="bg-slate-900 text-slate-100 px-3 py-2 rounded-lg border border-slate-700 text-xs focus:outline-none focus:border-indigo-500"
+            className={`px-3 py-1.5 rounded text-xs focus:outline-none ${theme.inputBg}`}
           >
             <option value="All">All Crafted Products</option>
             {items.map(item => (
@@ -167,7 +169,7 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
         <button
           onClick={handleOpenAdd}
           disabled={items.length === 0}
-          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer shadow-lg shadow-emerald-600/20 disabled:opacity-50"
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-colors cursor-pointer ${theme.buttonPrimary} disabled:opacity-50`}
         >
           <Plus className="w-4 h-4" />
           Create Recipe
@@ -176,13 +178,13 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
 
       {/* Recipes List */}
       {filteredRecipes.length === 0 ? (
-        <div className="bg-slate-800/50 rounded-xl p-12 text-center border border-slate-700/50">
-          <Scroll className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-          <p className="text-slate-400 text-base font-medium">No crafting recipes found.</p>
-          <p className="text-slate-500 text-xs mt-1">Combine base items and conditions to define crafting recipes.</p>
+        <div className={`rounded-xl p-12 text-center border ${theme.cardBg} ${theme.borderMuted}`}>
+          <Scroll className="w-12 h-12 mx-auto mb-3 opacity-40" />
+          <p className="text-base font-bold uppercase tracking-wide">No crafting recipes found.</p>
+          <p className={`text-xs mt-1 ${theme.textMuted}`}>Combine base items and conditions to define crafting recipes.</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {filteredRecipes.map(recipe => {
             const outputItem = getItemById(recipe.outputItemId);
             const OutputIcon = outputItem ? getItemIconComponent(outputItem.icon) : Scroll;
@@ -190,22 +192,22 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
             return (
               <div
                 key={recipe.id}
-                className="bg-slate-800 border border-slate-700 hover:border-slate-600 rounded-xl p-5 transition-all shadow-lg flex flex-col lg:flex-row lg:items-center justify-between gap-6 group"
+                className={`rounded-xl border p-4 shadow-md flex flex-col lg:flex-row lg:items-center justify-between gap-4 transition-colors ${theme.cardBg} ${theme.border}`}
               >
                 {/* Left: Recipe Target */}
-                <div className="flex items-start gap-4 min-w-[220px]">
-                  <div className="p-3 bg-emerald-950/50 border border-emerald-800/80 rounded-xl text-emerald-400">
-                    <OutputIcon className="w-7 h-7" />
+                <div className="flex items-start gap-3 min-w-[220px]">
+                  <div className={`p-2.5 rounded-lg border ${theme.border} ${theme.panelBg}`}>
+                    <OutputIcon className={`w-6 h-6 ${theme.accentText}`} />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-100 text-lg leading-snug">{recipe.name}</h3>
+                    <h3 className={`font-bold text-base uppercase tracking-wide ${theme.textBright}`}>{recipe.name}</h3>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs font-semibold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/60">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${theme.badgePrimary}`}>
                         Yield: {recipe.outputQuantity}x {outputItem ? outputItem.name : recipe.outputItemId}
                       </span>
                       {recipe.craftTimeSeconds && (
-                        <span className="text-xs text-slate-400 flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-slate-400" />
+                        <span className={`text-[11px] flex items-center gap-1 ${theme.textMuted}`}>
+                          <Clock className="w-3 h-3" />
                           {recipe.craftTimeSeconds}s
                         </span>
                       )}
@@ -214,10 +216,10 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
                 </div>
 
                 {/* Middle: Ingredients -> Arrow */}
-                <div className="flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/60">
+                <div className={`flex-1 flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-lg border ${theme.panelBg} ${theme.border}`}>
                   {/* Ingredients */}
-                  <div className="flex-1 flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mr-1">
+                  <div className="flex-1 flex flex-wrap items-center gap-1.5">
+                    <span className={`text-[10px] font-bold uppercase tracking-wider mr-1 ${theme.textMuted}`}>
                       Inputs:
                     </span>
                     {recipe.inputs.map((inp, idx) => {
@@ -226,11 +228,11 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
                       return (
                         <div
                           key={idx}
-                          className="flex items-center gap-1.5 bg-slate-800 border border-slate-700 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-200"
+                          className={`flex items-center gap-1.5 border px-2 py-1 rounded text-xs font-semibold ${theme.badgeSecondary}`}
                         >
-                          <InpIcon className="w-3.5 h-3.5 text-indigo-400" />
+                          <InpIcon className={`w-3.5 h-3.5 ${theme.accentText}`} />
                           <span>{ingredient ? ingredient.name : inp.itemId}</span>
-                          <span className="bg-indigo-950 text-indigo-300 font-bold px-1.5 py-0.5 rounded text-[10px] ml-1">
+                          <span className="font-bold ml-1 opacity-80">
                             x{inp.quantity}
                           </span>
                         </div>
@@ -238,15 +240,15 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
                     })}
                   </div>
 
-                  <ArrowRight className="w-5 h-5 text-slate-500 hidden sm:block shrink-0" />
+                  <ArrowRight className={`w-4 h-4 hidden sm:block shrink-0 ${theme.textMuted}`} />
 
                   {/* Required Conditions */}
                   <div className="flex flex-wrap items-center gap-1.5">
-                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider mr-1">
+                    <span className={`text-[10px] font-bold uppercase tracking-wider mr-1 ${theme.textMuted}`}>
                       Conditions:
                     </span>
                     {(!recipe.conditionIds || recipe.conditionIds.length === 0) ? (
-                      <span className="text-xs text-slate-500 italic">None Required</span>
+                      <span className={`text-xs italic ${theme.textMuted}`}>None</span>
                     ) : (
                       recipe.conditionIds.map(condId => {
                         const condition = getConditionById(condId);
@@ -255,10 +257,10 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
                         return (
                           <div
                             key={condId}
-                            className="flex items-center gap-1 bg-purple-950/60 border border-purple-800/60 px-2 py-1 rounded-md text-[11px] font-medium text-purple-300"
+                            className={`flex items-center gap-1 border px-2 py-0.5 rounded text-[10px] font-bold uppercase ${theme.badgeSecondary}`}
                             title={condition.description}
                           >
-                            <CondIcon className="w-3 h-3 text-purple-400" />
+                            <CondIcon className="w-3 h-3" />
                             <span>{condition.name}</span>
                           </div>
                         );
@@ -268,20 +270,20 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
                 </div>
 
                 {/* Right: Actions */}
-                <div className="flex items-center justify-end gap-2 shrink-0">
+                <div className="flex items-center justify-end gap-1 shrink-0">
                   <button
                     onClick={() => handleOpenEdit(recipe)}
-                    className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-700 rounded-lg transition-colors"
+                    className={`p-1.5 rounded border transition-colors ${theme.buttonSecondary}`}
                     title="Edit Recipe"
                   >
-                    <Edit2 className="w-4 h-4" />
+                    <Edit2 className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => handleDelete(recipe.id)}
-                    className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-950/50 rounded-lg transition-colors"
+                    className="p-1.5 rounded text-rose-500 hover:bg-rose-900/30 transition-colors"
                     title="Delete Recipe"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -292,23 +294,23 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
 
       {/* Modal Form for Creating/Editing Recipe */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-2xl p-6 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold text-slate-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className={`border rounded-2xl w-full max-w-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto ${theme.cardBg} ${theme.border}`}>
+            <h2 className={`text-lg font-bold uppercase tracking-wide ${theme.textBright}`}>
               {editingRecipe ? 'Edit Recipe' : 'Create Recipe'}
             </h2>
 
-            <form onSubmit={handleSave} className="space-y-5">
+            <form onSubmit={handleSave} className="space-y-4">
               {/* Target Output Item & Yield */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                  <label className={`block text-xs font-bold uppercase tracking-wider mb-1 ${theme.textMuted}`}>
                     Target Output Item
                   </label>
                   <select
                     value={formData.outputItemId}
                     onChange={(e) => setFormData({ ...formData, outputItemId: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-emerald-500"
+                    className={`w-full rounded px-3 py-2 text-xs focus:outline-none ${theme.inputBg}`}
                   >
                     {items.map(item => (
                       <option key={item.id} value={item.id}>
@@ -319,7 +321,7 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                  <label className={`block text-xs font-bold uppercase tracking-wider mb-1 ${theme.textMuted}`}>
                     Output Quantity
                   </label>
                   <input
@@ -327,7 +329,7 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
                     min="1"
                     value={formData.outputQuantity}
                     onChange={(e) => setFormData({ ...formData, outputQuantity: parseInt(e.target.value) || 1 })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-emerald-500"
+                    className={`w-full rounded px-3 py-2 text-xs focus:outline-none ${theme.inputBg}`}
                   />
                 </div>
               </div>
@@ -335,7 +337,7 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
               {/* Recipe Name & Crafting Time */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                  <label className={`block text-xs font-bold uppercase tracking-wider mb-1 ${theme.textMuted}`}>
                     Recipe Name (Optional)
                   </label>
                   <input
@@ -343,12 +345,12 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
                     placeholder="Defaults to Craft <Item Name>"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-emerald-500"
+                    className={`w-full rounded px-3 py-2 text-xs focus:outline-none ${theme.inputBg}`}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                  <label className={`block text-xs font-bold uppercase tracking-wider mb-1 ${theme.textMuted}`}>
                     Crafting Time (Sec)
                   </label>
                   <input
@@ -357,7 +359,7 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
                     min="0"
                     value={formData.craftTimeSeconds}
                     onChange={(e) => setFormData({ ...formData, craftTimeSeconds: parseFloat(e.target.value) || 0 })}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-emerald-500"
+                    className={`w-full rounded px-3 py-2 text-xs focus:outline-none ${theme.inputBg}`}
                   />
                 </div>
               </div>
@@ -365,26 +367,26 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
               {/* Ingredients Inputs */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  <label className={`text-xs font-bold uppercase tracking-wider ${theme.textMuted}`}>
                     Required Input Ingredients
                   </label>
                   <button
                     type="button"
                     onClick={handleAddInput}
-                    className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 font-medium"
+                    className={`flex items-center gap-1 text-xs font-bold uppercase ${theme.accentText}`}
                   >
                     <Plus className="w-3.5 h-3.5" />
                     Add Ingredient
                   </button>
                 </div>
 
-                <div className="space-y-2 bg-slate-900 p-3 rounded-lg border border-slate-700">
+                <div className={`space-y-2 p-3 rounded border ${theme.panelBg} ${theme.border}`}>
                   {formData.inputs.map((inp, idx) => (
                     <div key={idx} className="flex items-center gap-2">
                       <select
                         value={inp.itemId}
                         onChange={(e) => handleInputChange(idx, 'itemId', e.target.value)}
-                        className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-100 text-xs focus:outline-none focus:border-indigo-500"
+                        className={`flex-1 rounded px-3 py-1.5 text-xs focus:outline-none ${theme.inputBg}`}
                       >
                         {items.map(item => (
                           <option key={item.id} value={item.id}>{item.name}</option>
@@ -397,13 +399,13 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
                         placeholder="Qty"
                         value={inp.quantity}
                         onChange={(e) => handleInputChange(idx, 'quantity', parseInt(e.target.value) || 1)}
-                        className="w-20 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-100 text-xs focus:outline-none focus:border-indigo-500"
+                        className={`w-20 rounded px-2 py-1.5 text-xs focus:outline-none ${theme.inputBg}`}
                       />
 
                       <button
                         type="button"
                         onClick={() => handleRemoveInput(idx)}
-                        className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-slate-800 rounded-md transition-colors"
+                        className="p-1.5 text-rose-500 hover:bg-rose-900/30 rounded transition-colors"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -414,15 +416,15 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
 
               {/* Required Crafting Conditions Toggle Selection */}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                <label className={`block text-xs font-bold uppercase tracking-wider mb-2 ${theme.textMuted}`}>
                   Required Conditions (Workstations, Skills, Tools, Tiers)
                 </label>
                 {conditions.length === 0 ? (
-                  <p className="text-xs text-slate-500 italic bg-slate-900 p-3 rounded-lg border border-slate-700">
-                    No crafting conditions defined yet. You can add conditions in the Conditions tab.
+                  <p className={`text-xs italic p-3 rounded border ${theme.panelBg} ${theme.border} ${theme.textMuted}`}>
+                    No crafting conditions defined yet.
                   </p>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-44 overflow-y-auto p-2 bg-slate-900 rounded-lg border border-slate-700">
+                  <div className={`grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-44 overflow-y-auto p-2 rounded border ${theme.panelBg} ${theme.border}`}>
                     {conditions.map(cond => {
                       const isSelected = formData.conditionIds.includes(cond.id);
                       const CondIcon = getConditionIconComponent(cond.icon);
@@ -430,22 +432,20 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
                         <div
                           key={cond.id}
                           onClick={() => toggleCondition(cond.id)}
-                          className={`flex items-center gap-2.5 p-2 rounded-lg border cursor-pointer select-none transition-colors ${
+                          className={`flex items-center gap-2.5 p-2 rounded border cursor-pointer select-none transition-colors ${
                             isSelected
-                              ? 'bg-purple-950/60 border-purple-500 text-purple-200'
-                              : 'bg-slate-800 border-slate-700/80 text-slate-400 hover:border-slate-600 hover:text-slate-300'
+                              ? theme.buttonActive
+                              : theme.buttonSecondary
                           }`}
                         >
-                          <div className={`p-1 rounded ${isSelected ? 'bg-purple-600 text-white' : 'bg-slate-700 text-slate-400'}`}>
+                          <div className="p-1 rounded border border-current">
                             <CondIcon className="w-3.5 h-3.5" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-semibold truncate">{cond.name}</p>
-                            <p className="text-[10px] text-slate-400 capitalize">{cond.type} • {cond.level}</p>
+                            <p className="text-xs font-bold truncate">{cond.name}</p>
+                            <p className="text-[10px] opacity-75 capitalize">{cond.type} • {cond.level}</p>
                           </div>
-                          <div className={`w-4 h-4 rounded flex items-center justify-center border ${
-                            isSelected ? 'bg-purple-600 border-purple-500 text-white' : 'border-slate-600'
-                          }`}>
+                          <div className={`w-4 h-4 rounded flex items-center justify-center border border-current`}>
                             {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                           </div>
                         </div>
@@ -456,7 +456,7 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                <label className={`block text-xs font-bold uppercase tracking-wider mb-1 ${theme.textMuted}`}>
                   Notes
                 </label>
                 <textarea
@@ -464,7 +464,7 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
                   placeholder="Optional tips or recipe details..."
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 text-sm focus:outline-none focus:border-emerald-500"
+                  className={`w-full rounded px-3 py-2 text-xs focus:outline-none ${theme.inputBg}`}
                 />
               </div>
 
@@ -472,13 +472,13 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-lg text-slate-400 hover:text-slate-200 text-sm font-medium transition-colors cursor-pointer"
+                  className={`px-4 py-2 rounded text-xs border ${theme.buttonSecondary}`}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors cursor-pointer"
+                  className={`px-4 py-2 rounded text-xs ${theme.buttonPrimary}`}
                 >
                   {editingRecipe ? 'Save Changes' : 'Create Recipe'}
                 </button>

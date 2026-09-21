@@ -13,16 +13,9 @@ import {
 import '@xyflow/react/dist/style.css';
 import {
   Hammer,
-  Sparkles,
-  Zap,
-  Info,
-  Sliders,
   Layers,
-  ChevronRight,
-  Maximize2,
   Box,
   Wrench,
-  BookOpen,
   Leaf,
   Skull,
   Wine,
@@ -43,6 +36,7 @@ import {
   Filter,
   HelpCircle
 } from 'lucide-react';
+import { useTheme } from '../utils/theme';
 
 const ICON_MAP = {
   Leaf,
@@ -56,7 +50,6 @@ const ICON_MAP = {
   FlaskConical,
   Sword,
   Flame,
-  Zap,
   Cog,
   Cpu,
   FlaskRound,
@@ -65,7 +58,7 @@ const ICON_MAP = {
   Award,
 };
 
-function renderItemIcon(iconName, defaultClass = "w-5 h-5 text-amber-400") {
+function renderItemIcon(iconName, defaultClass = "w-4 h-4") {
   if (!iconName) return <Package className={defaultClass} />;
   const IconComponent = ICON_MAP[iconName];
   if (IconComponent) {
@@ -81,67 +74,56 @@ function renderItemIcon(iconName, defaultClass = "w-5 h-5 text-amber-400") {
 const CustomItemNode = ({ data, selected }) => {
   const { item, recipesUsing, recipesProducing } = data;
 
-  const categoryColors = {
-    raw: 'bg-emerald-950/70 border-emerald-500/60 text-emerald-200',
-    intermediate: 'bg-blue-950/70 border-blue-500/60 text-blue-200',
-    finished: 'bg-purple-950/70 border-purple-500/60 text-purple-200',
-  };
-
-  const badgeColors = {
-    raw: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-    intermediate: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-    finished: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-  };
-
-  const categoryKey = (item?.category || '').toLowerCase();
-
   return (
     <div
-      className={`px-4 py-3 rounded-xl border backdrop-blur-md transition-all shadow-xl min-w-[190px] max-w-[230px] ${
+      className={`px-3 py-2.5 rounded-lg border font-mono transition-all shadow-lg min-w-[170px] max-w-[210px] ${
         selected
-          ? 'ring-2 ring-amber-400 border-amber-400 scale-105 shadow-amber-500/20'
-          : categoryColors[categoryKey] || 'bg-slate-800/80 border-slate-700 text-slate-200'
+          ? 'ring-2 ring-current font-bold'
+          : ''
       }`}
+      style={{
+        backgroundColor: data.nodeBg || '#0d1d2d',
+        borderColor: data.nodeBorder || '#00f0ff',
+        color: data.nodeText || '#c5f6ff'
+      }}
     >
       <Handle
         type="target"
         position={Position.Left}
         id="input"
-        className="!bg-amber-400 !w-3 !h-3 !border-2 !border-slate-900"
+        className="!w-3 !h-3 !border-2"
+        style={{ backgroundColor: data.nodeBorder || '#00f0ff' }}
       />
 
-      <div className="flex items-center gap-2.5 mb-2">
-        <div className="p-1.5 rounded-lg bg-slate-900/60 border border-slate-700/50 flex items-center justify-center">
+      <div className="flex items-center gap-2 mb-1.5">
+        <div className="p-1 rounded border border-current opacity-80">
           {renderItemIcon(item?.icon)}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-bold text-sm text-slate-100 truncate">{item?.name}</div>
-          <span
-            className={`text-[10px] px-2 py-0.5 rounded-full border font-medium capitalize inline-block mt-0.5 ${
-              badgeColors[categoryKey] || 'bg-slate-700 text-slate-300'
-            }`}
-          >
+          <div className="font-bold text-xs truncate uppercase tracking-wide">{item?.name}</div>
+          <span className="text-[9px] px-1.5 py-0.2 rounded border border-current opacity-80 uppercase">
             {item?.category || 'Item'}
           </span>
         </div>
       </div>
 
       {item?.description && (
-        <p className="text-[11px] text-slate-400 line-clamp-2 mt-1 border-t border-slate-700/50 pt-1">
+        <p className="text-[10px] opacity-75 line-clamp-2 mt-1 border-t border-current/20 pt-1 italic">
           {item.description}
         </p>
       )}
 
-      <div className="flex justify-between items-center text-[10px] text-slate-400 mt-2 pt-1 border-t border-slate-700/40">
-        <span>In: {recipesProducing?.length || 0} recipes</span>
-        <span>Out: {recipesUsing?.length || 0} recipes</span>
+      <div className="flex justify-between items-center text-[9px] opacity-70 mt-1.5 pt-1 border-t border-current/20">
+        <span>In: {recipesProducing?.length || 0}</span>
+        <span>Out: {recipesUsing?.length || 0}</span>
       </div>
 
       <Handle
         type="source"
         position={Position.Right}
         id="output"
-        className="!bg-amber-400 !w-3 !h-3 !border-2 !border-slate-900"
+        className="!w-3 !h-3 !border-2"
+        style={{ backgroundColor: data.nodeBorder || '#00f0ff' }}
       />
     </div>
   );
@@ -153,48 +135,45 @@ const CustomRecipeNode = ({ data, selected }) => {
 
   return (
     <div
-      className={`px-3 py-2.5 rounded-lg border backdrop-blur-md transition-all shadow-md min-w-[160px] max-w-[210px] ${
+      className={`px-3 py-2 rounded-lg border font-mono transition-all shadow-md min-w-[150px] max-w-[200px] ${
         selected
-          ? 'ring-2 ring-amber-400 border-amber-400 bg-amber-950/40'
-          : 'bg-slate-900/90 border-amber-500/40 text-amber-200'
+          ? 'ring-2 ring-current font-bold'
+          : ''
       }`}
+      style={{
+        backgroundColor: data.panelBg || '#031d28',
+        borderColor: data.accentColor || '#f59e0b',
+        color: data.nodeText || '#c5f6ff'
+      }}
     >
       <Handle
         type="target"
         position={Position.Left}
         id="ingredients"
-        className="!bg-cyan-400 !w-3 !h-3 !border-2 !border-slate-900"
+        className="!w-2.5 !h-2.5 !border"
+        style={{ backgroundColor: data.accentColor || '#f59e0b' }}
       />
 
-      <div className="flex items-center gap-2">
-        <div className="p-1 rounded bg-amber-500/20 text-amber-400">
-          <Hammer className="w-3.5 h-3.5" />
-        </div>
+      <div className="flex items-center gap-1.5">
+        <Hammer className="w-3.5 h-3.5 shrink-0" />
         <div className="flex-1 min-w-0">
-          <div className="font-semibold text-xs text-amber-100 truncate">{recipe?.name}</div>
-          <div className="text-[10px] text-amber-400/80">Yield: x{recipe?.outputQuantity || 1}</div>
+          <div className="font-bold text-xs truncate uppercase">{recipe?.name}</div>
+          <div className="text-[9px] opacity-80">Yield: x{recipe?.outputQuantity || 1}</div>
         </div>
       </div>
 
       {/* Required Conditions / Workstations */}
       {conditions && conditions.length > 0 && (
-        <div className="mt-2 pt-1.5 border-t border-amber-500/20 flex flex-wrap gap-1">
+        <div className="mt-1.5 pt-1 border-t border-current/20 flex flex-wrap gap-1">
           {conditions.map((cond) => (
             <span
               key={cond.id}
-              className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 flex items-center gap-1"
+              className="text-[8px] px-1 py-0.2 rounded border border-current/40 uppercase flex items-center gap-0.5"
             >
-              <Wrench className="w-2.5 h-2.5" />
+              <Wrench className="w-2 h-2" />
               {cond.name}
-              {cond.level ? ` (${cond.level})` : ''}
             </span>
           ))}
-        </div>
-      )}
-
-      {(recipe?.craftTimeSeconds > 0 || recipe?.craftingTime > 0) && (
-        <div className="text-[9px] text-slate-400 mt-1 text-right">
-          ⏱️ {recipe.craftTimeSeconds || recipe.craftingTime}s
         </div>
       )}
 
@@ -202,7 +181,8 @@ const CustomRecipeNode = ({ data, selected }) => {
         type="source"
         position={Position.Right}
         id="output"
-        className="!bg-cyan-400 !w-3 !h-3 !border-2 !border-slate-900"
+        className="!w-2.5 !h-2.5 !border"
+        style={{ backgroundColor: data.accentColor || '#f59e0b' }}
       />
     </div>
   );
@@ -214,40 +194,37 @@ const nodeTypes = {
 };
 
 export default function TechTreeGraph({ items = [], recipes = [], conditions = [] }) {
+  const { theme } = useTheme();
   const [selectedNodeData, setSelectedNodeData] = useState(null);
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterConditionId, setFilterConditionId] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [showLegend, setShowLegend] = useState(true);
 
-  // Helper to extract inputs array regardless of schema variant
+  // Helper to extract inputs array
   const getRecipeInputs = (recipe) => recipe.inputs || recipe.ingredients || [];
 
-  // Generate Graph Nodes & Edges automatically based on dependency tree depth
+  // Generate Graph Nodes & Edges automatically
   const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
     if (!items.length) return { nodes: [], edges: [] };
 
     const itemMap = new Map(items.map((i) => [i.id, i]));
     const conditionMap = new Map(conditions.map((c) => [c.id, c]));
 
-    // Filter recipes based on tag / condition selection
     const eligibleRecipes = recipes.filter((recipe) => {
       if (filterConditionId === 'all') return true;
       return (recipe.conditionIds || []).includes(filterConditionId);
     });
 
-    // Calculate depth for items
     const itemDepths = new Map();
     const recipeDepths = new Map();
 
-    // Raw items get depth 0
     items.forEach((item) => {
       if ((item.category || '').toLowerCase() === 'raw') {
         itemDepths.set(item.id, 0);
       }
     });
 
-    // Iteratively resolve depths for recipes and produced items
     let changed = true;
     let iterations = 0;
     while (changed && iterations < 20) {
@@ -264,7 +241,6 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
             recipeDepths.set(recipe.id, maxInputDepth + 1);
             changed = true;
 
-            // Output item depth
             if (recipe.outputItemId) {
               const currentItemDepth = itemDepths.get(recipe.outputItemId);
               if (currentItemDepth === undefined || currentItemDepth < maxInputDepth + 2) {
@@ -276,7 +252,6 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
       });
     }
 
-    // Default depth for remaining unconnected items
     items.forEach((item) => {
       if (itemDepths.get(item.id) === undefined) {
         const cat = (item.category || '').toLowerCase();
@@ -284,24 +259,22 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
       }
     });
 
-    // Organize into column layers
-    const layerXSpacing = 320;
-    const layerYSpacing = 130;
+    const layerXSpacing = 300;
+    const layerYSpacing = 120;
     const layerCounters = new Map();
 
     const getNextPos = (depth) => {
       const currentCount = layerCounters.get(depth) || 0;
       layerCounters.set(depth, currentCount + 1);
       return {
-        x: depth * layerXSpacing + 50,
-        y: currentCount * layerYSpacing + 50,
+        x: depth * layerXSpacing + 40,
+        y: currentCount * layerYSpacing + 40,
       };
     };
 
     const graphNodes = [];
     const graphEdges = [];
 
-    // Filter items based on search/category if applied
     const filteredItems = items.filter((item) => {
       const cat = (item.category || '').toLowerCase();
       const matchesCategory = filterCategory === 'all' || cat === filterCategory.toLowerCase();
@@ -314,7 +287,6 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
 
     const filteredItemIds = new Set(filteredItems.map((i) => i.id));
 
-    // Create Item Nodes
     filteredItems.forEach((item) => {
       const depth = itemDepths.get(item.id) || 0;
       const pos = getNextPos(depth);
@@ -332,11 +304,13 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
           item,
           recipesUsing,
           recipesProducing,
+          nodeBg: theme.nodeBg,
+          nodeBorder: theme.nodeBorder,
+          nodeText: theme.nodeText,
         },
       });
     });
 
-    // Create Recipe Nodes and Edges
     eligibleRecipes.forEach((recipe) => {
       const outputItem = itemMap.get(recipe.outputItemId);
       if (!outputItem || !filteredItemIds.has(outputItem.id)) return;
@@ -357,10 +331,12 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
         data: {
           recipe,
           conditions: reqConditions,
+          panelBg: theme.panelBg,
+          nodeText: theme.nodeText,
+          accentColor: theme.nodeBorder,
         },
       });
 
-      // Connect Ingredient Items -> Recipe Node
       const recipeInputs = getRecipeInputs(recipe);
       recipeInputs.forEach((ing) => {
         const ingId = ing.itemId || ing.id;
@@ -373,15 +349,14 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
             targetHandle: 'ingredients',
             animated: true,
             label: `x${ing.quantity}`,
-            style: { stroke: '#38bdf8', strokeWidth: 2 },
-            labelStyle: { fill: '#38bdf8', fontSize: 10, fontWeight: 600 },
-            labelBgStyle: { fill: '#0f172a', rx: 4, ry: 4 },
-            markerEnd: { type: MarkerType.ArrowClosed, color: '#38bdf8' },
+            style: { stroke: theme.nodeBorder, strokeWidth: 2 },
+            labelStyle: { fill: theme.nodeText, fontSize: 10, fontWeight: 700 },
+            labelBgStyle: { fill: theme.nodeBg, rx: 4, ry: 4 },
+            markerEnd: { type: MarkerType.ArrowClosed, color: theme.nodeBorder },
           });
         }
       });
 
-      // Connect Recipe Node -> Produced Item Node
       graphEdges.push({
         id: `edge-${recipe.id}-to-${recipe.outputItemId}`,
         source: recipeNodeId,
@@ -389,13 +364,13 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
         sourceHandle: 'output',
         targetHandle: 'input',
         animated: true,
-        style: { stroke: '#f59e0b', strokeWidth: 2.5 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: '#f59e0b' },
+        style: { stroke: theme.nodeBorder, strokeWidth: 2.5 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: theme.nodeBorder },
       });
     });
 
     return { nodes: graphNodes, edges: graphEdges };
-  }, [items, recipes, conditions, filterCategory, filterConditionId, searchTerm]);
+  }, [items, recipes, conditions, filterCategory, filterConditionId, searchTerm, theme]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -410,19 +385,19 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
   }, []);
 
   return (
-    <div className="h-[calc(100vh-140px)] flex flex-col bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl relative">
+    <div className={`h-[calc(100vh-140px)] flex flex-col font-mono rounded-2xl border overflow-hidden shadow-2xl relative ${theme.bg} ${theme.border}`}>
       {/* Top Filter Bar */}
-      <div className="p-3 bg-slate-900/90 border-b border-slate-800 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 z-10">
+      <div className={`p-3 border-b flex flex-wrap items-center justify-between gap-3 z-10 ${theme.headerBg} ${theme.borderMuted}`}>
         <div className="flex items-center gap-2.5">
-          <div className="p-1.5 bg-gradient-to-br from-amber-500/20 to-orange-500/20 text-amber-400 rounded-lg border border-amber-500/30">
+          <div className={`p-1.5 rounded border ${theme.border}`}>
             <Layers className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
-              Recipe & Tech Tree Graph
+            <h2 className={`text-base font-bold flex items-center gap-2 uppercase tracking-wide ${theme.textBright}`}>
+              Tech Tree & Recipe Graph
             </h2>
-            <p className="text-[11px] text-slate-400">
-              Interactive node graph showing dependencies, workstations, and craft pathways
+            <p className={`text-[10px] ${theme.textMuted}`}>
+              Visual node graph showing item dependencies, workstations, and craft pathways
             </p>
           </div>
         </div>
@@ -434,33 +409,33 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
             placeholder="Search items..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-2.5 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+            className={`px-2 py-1 rounded text-xs focus:outline-none ${theme.inputBg}`}
           />
 
           {/* Category Filter */}
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
-            className="px-2.5 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-amber-500 capitalize"
+            className={`px-2 py-1 rounded text-xs focus:outline-none capitalize ${theme.inputBg}`}
           >
             <option value="all">All Categories</option>
             <option value="raw">Raw Materials</option>
-            <option value="intermediate">Intermediate Components</option>
-            <option value="finished">Finished Products</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="finished">Finished</option>
           </select>
 
           {/* Workstation / Tag Filter */}
-          <div className="flex items-center gap-1.5 bg-slate-800/80 px-2 py-1 rounded-lg border border-slate-700">
-            <Filter className="w-3.5 h-3.5 text-amber-400" />
+          <div className={`flex items-center gap-1.5 px-2 py-1 rounded border ${theme.border} ${theme.panelBg}`}>
+            <Filter className="w-3.5 h-3.5" />
             <select
               value={filterConditionId}
               onChange={(e) => setFilterConditionId(e.target.value)}
-              className="bg-transparent text-xs text-slate-200 focus:outline-none font-medium"
+              className="bg-transparent text-xs focus:outline-none font-bold uppercase"
             >
-              <option value="all" className="bg-slate-900">All Workstations / Skills</option>
+              <option value="all">All Workstations / Skills</option>
               {conditions.map((cond) => (
-                <option key={cond.id} value={cond.id} className="bg-slate-900">
-                  {cond.name} ({cond.type})
+                <option key={cond.id} value={cond.id}>
+                  {cond.name}
                 </option>
               ))}
             </select>
@@ -468,13 +443,13 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
 
           <button
             onClick={() => setShowLegend(!showLegend)}
-            className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer ${
+            className={`px-2.5 py-1 rounded border text-xs font-bold uppercase flex items-center gap-1 transition-colors cursor-pointer ${
               showLegend
-                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                : 'bg-slate-800 text-slate-400 border-slate-700'
+                ? theme.buttonActive
+                : theme.buttonSecondary
             }`}
           >
-            <HelpCircle className="w-3 h-3" />
+            <HelpCircle className="w-3.5 h-3.5" />
             Legend
           </button>
         </div>
@@ -493,84 +468,65 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
           minZoom={0.2}
           maxZoom={2}
           defaultEdgeOptions={{ animated: true }}
-          colorMode="dark"
         >
-          <Background color="#334155" gap={20} size={1} />
-          <Controls className="!bg-slate-900 !border-slate-800 !text-slate-200" />
+          <Background color={theme.nodeBorder} gap={24} size={1} />
+          <Controls className={`!border ${theme.cardBg} ${theme.border}`} />
           <MiniMap
-            className="!bg-slate-900/90 !border-slate-800 !rounded-lg overflow-hidden"
-            nodeColor={(node) => {
-              if (node.type === 'itemNode') {
-                const cat = (node.data.item?.category || '').toLowerCase();
-                if (cat === 'raw') return '#10b981';
-                if (cat === 'intermediate') return '#3b82f6';
-                if (cat === 'finished') return '#a855f7';
-              }
-              if (node.type === 'recipeNode') return '#f59e0b';
-              return '#64748b';
-            }}
-            maskColor="rgba(15, 23, 42, 0.7)"
+            className={`!border ${theme.cardBg} ${theme.border}`}
+            nodeColor={() => theme.nodeBorder}
           />
         </ReactFlow>
 
         {/* Color Legend Overlay */}
         {showLegend && (
-          <div className="absolute top-4 left-4 bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 shadow-xl backdrop-blur-md z-20 text-xs text-slate-200 space-y-2 max-w-xs">
-            <div className="font-bold text-slate-100 border-b border-slate-800 pb-1 flex justify-between items-center">
-              <span>Graph Node Legend</span>
+          <div className={`absolute top-4 left-4 border rounded-xl p-3 shadow-xl backdrop-blur-md z-20 text-xs space-y-2 max-w-xs ${theme.cardBg} ${theme.border}`}>
+            <div className={`font-bold uppercase tracking-wide border-b pb-1 flex justify-between items-center ${theme.borderMuted} ${theme.textBright}`}>
+              <span>Graph Legend</span>
               <button
                 onClick={() => setShowLegend(false)}
-                className="text-slate-500 hover:text-slate-300 text-[10px]"
+                className="opacity-60 hover:opacity-100 text-[10px]"
               >
                 ✕
               </button>
             </div>
-            <div className="grid grid-cols-2 gap-1.5 text-[11px]">
-              <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded bg-emerald-500 border border-emerald-400 inline-block"></span>
-                <span>Raw Material</span>
+            <div className="space-y-1 text-[11px]">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded border border-current inline-block bg-current/20"></span>
+                <span>Node: Item Material / Product</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded bg-blue-500 border border-blue-400 inline-block"></span>
-                <span>Intermediate</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded bg-purple-500 border border-purple-400 inline-block"></span>
-                <span>Finished Product</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded bg-amber-500 border border-amber-400 inline-block"></span>
-                <span>Recipe Craft</span>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded border border-current inline-block bg-current/40"></span>
+                <span>Node: Recipe Craft Operation</span>
               </div>
             </div>
-            <div className="text-[10px] text-slate-400 border-t border-slate-800/80 pt-1.5">
-              • Arrows show flow from Ingredients → Recipe → Output.
+            <div className={`text-[10px] border-t pt-1.5 ${theme.borderMuted} ${theme.textMuted}`}>
+              • Connected arrows represent component ingredient flow.
             </div>
           </div>
         )}
 
         {/* Selected Node Details Side Panel */}
         {selectedNodeData && (
-          <div className="absolute top-4 right-4 w-80 bg-slate-900/95 border border-slate-700 rounded-xl p-4 shadow-2xl backdrop-blur-md z-20 text-slate-200">
-            <div className="flex justify-between items-start mb-3 border-b border-slate-800 pb-2">
-              <h3 className="font-bold text-amber-400 flex items-center gap-2 text-base">
+          <div className={`absolute top-4 right-4 w-80 border rounded-xl p-4 shadow-2xl backdrop-blur-md z-20 font-mono ${theme.cardBg} ${theme.border}`}>
+            <div className={`flex justify-between items-start mb-3 border-b pb-2 ${theme.borderMuted}`}>
+              <h3 className={`font-bold flex items-center gap-2 text-sm uppercase tracking-wide ${theme.textBright}`}>
                 {selectedNodeData.item ? (
                   <>
-                    <span className="p-1 rounded bg-slate-800 border border-slate-700 inline-flex items-center">
-                      {renderItemIcon(selectedNodeData.item.icon, "w-4 h-4 text-amber-400")}
+                    <span className="p-1 rounded border border-current inline-flex items-center">
+                      {renderItemIcon(selectedNodeData.item.icon)}
                     </span>
                     {selectedNodeData.item.name}
                   </>
                 ) : (
                   <>
-                    <Hammer className="w-4 h-4 text-amber-400" />
+                    <Hammer className="w-4 h-4" />
                     {selectedNodeData.recipe?.name}
                   </>
                 )}
               </h3>
               <button
                 onClick={() => setSelectedNodeData(null)}
-                className="text-slate-400 hover:text-slate-200 text-xs px-2 py-1 rounded bg-slate-800 cursor-pointer"
+                className={`text-xs px-2 py-1 rounded border ${theme.buttonSecondary}`}
               >
                 ✕ Close
               </button>
@@ -579,49 +535,49 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
             {selectedNodeData.item && (
               <div className="space-y-3 text-xs">
                 <div>
-                  <span className="text-slate-400">Category: </span>
-                  <span className="font-semibold capitalize text-amber-300">
+                  <span className={theme.textMuted}>Category: </span>
+                  <span className={`font-bold uppercase ${theme.accentText}`}>
                     {selectedNodeData.item.category}
                   </span>
                 </div>
                 {selectedNodeData.item.description && (
-                  <p className="text-slate-300 italic">{selectedNodeData.item.description}</p>
+                  <p className="italic opacity-80">{selectedNodeData.item.description}</p>
                 )}
 
                 {/* Produced by */}
                 <div>
-                  <h4 className="font-semibold text-slate-300 mb-1 border-b border-slate-800 pb-1">
+                  <h4 className={`font-bold uppercase mb-1 border-b pb-1 ${theme.borderMuted} ${theme.textBright}`}>
                     Produced By ({selectedNodeData.recipesProducing?.length || 0} recipes)
                   </h4>
                   {selectedNodeData.recipesProducing?.length > 0 ? (
                     <div className="space-y-1 max-h-32 overflow-y-auto">
                       {selectedNodeData.recipesProducing.map((r) => (
-                        <div key={r.id} className="p-1.5 rounded bg-slate-800/60 border border-slate-700/50">
-                          <div className="font-medium text-amber-300">{r.name}</div>
-                          <div className="text-[10px] text-slate-400">Yield: x{r.outputQuantity}</div>
+                        <div key={r.id} className={`p-1.5 rounded border text-[11px] ${theme.panelBg} ${theme.border}`}>
+                          <div className="font-bold">{r.name}</div>
+                          <div className={`text-[10px] ${theme.textMuted}`}>Yield: x{r.outputQuantity}</div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <span className="text-slate-500">Base material (No recipe)</span>
+                    <span className={`text-[11px] ${theme.textMuted}`}>Base material (No recipe)</span>
                   )}
                 </div>
 
                 {/* Used in */}
                 <div>
-                  <h4 className="font-semibold text-slate-300 mb-1 border-b border-slate-800 pb-1">
+                  <h4 className={`font-bold uppercase mb-1 border-b pb-1 ${theme.borderMuted} ${theme.textBright}`}>
                     Used In ({selectedNodeData.recipesUsing?.length || 0} recipes)
                   </h4>
                   {selectedNodeData.recipesUsing?.length > 0 ? (
                     <div className="space-y-1 max-h-32 overflow-y-auto">
                       {selectedNodeData.recipesUsing.map((r) => (
-                        <div key={r.id} className="p-1.5 rounded bg-slate-800/60 border border-slate-700/50">
-                          <div className="font-medium text-sky-300">{r.name}</div>
+                        <div key={r.id} className={`p-1.5 rounded border text-[11px] ${theme.panelBg} ${theme.border}`}>
+                          <div className="font-bold">{r.name}</div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <span className="text-slate-500">End product (Not used in other recipes)</span>
+                    <span className={`text-[11px] ${theme.textMuted}`}>End product</span>
                   )}
                 </div>
               </div>
@@ -630,36 +586,36 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
             {selectedNodeData.recipe && (
               <div className="space-y-3 text-xs">
                 <div>
-                  <span className="text-slate-400">Crafting Time: </span>
-                  <span className="font-semibold text-slate-200">
-                    {selectedNodeData.recipe.craftTimeSeconds || selectedNodeData.recipe.craftingTime || 0} seconds
+                  <span className={theme.textMuted}>Crafting Time: </span>
+                  <span className="font-bold">
+                    {selectedNodeData.recipe.craftTimeSeconds || selectedNodeData.recipe.craftingTime || 0}s
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-400">Yield Output: </span>
-                  <span className="font-semibold text-amber-300">
+                  <span className={theme.textMuted}>Yield Output: </span>
+                  <span className={`font-bold ${theme.accentText}`}>
                     x{selectedNodeData.recipe.outputQuantity || 1}
                   </span>
                 </div>
 
                 {/* Conditions */}
                 <div>
-                  <h4 className="font-semibold text-slate-300 mb-1 border-b border-slate-800 pb-1">
-                    Workstation / Skill Requirements
+                  <h4 className={`font-bold uppercase mb-1 border-b pb-1 ${theme.borderMuted} ${theme.textBright}`}>
+                    Requirements
                   </h4>
                   {selectedNodeData.conditions?.length > 0 ? (
                     <div className="flex flex-wrap gap-1">
                       {selectedNodeData.conditions.map((c) => (
                         <span
                           key={c.id}
-                          className="px-2 py-1 rounded bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[11px]"
+                          className={`px-2 py-0.5 rounded border text-[10px] font-bold uppercase ${theme.badgeSecondary}`}
                         >
                           {c.name} {c.level ? `(${c.level})` : ''}
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <span className="text-slate-500">No workstation requirements</span>
+                    <span className={`text-[11px] ${theme.textMuted}`}>No requirements</span>
                   )}
                 </div>
               </div>
