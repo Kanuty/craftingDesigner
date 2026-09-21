@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, Anvil, Scroll, Calculator, Play, Download, Upload, RotateCcw, Sparkles, Gamepad2
+  Box, Anvil, Scroll, Calculator, Play, Download, Upload, RotateCcw, Sparkles, Gamepad2, Network
 } from 'lucide-react';
 import { loadDataFromStorage, saveDataToStorage, PRESETS } from './utils/storage';
 import { ItemManager } from './components/ItemManager';
@@ -8,10 +8,11 @@ import { ConditionManager } from './components/ConditionManager';
 import { RecipeBuilder } from './components/RecipeBuilder';
 import { CraftingCalculator } from './components/CraftingCalculator';
 import { CraftingSimulator } from './components/CraftingSimulator';
+import TechTreeGraph from './components/TechTreeGraph';
 
 export default function App() {
   const [data, setData] = useState(() => loadDataFromStorage());
-  const [activeTab, setActiveTab] = useState('recipes'); // 'items', 'conditions', 'recipes', 'calculator', 'simulator'
+  const [activeTab, setActiveTab] = useState('recipes'); // 'recipes', 'items', 'conditions', 'graphtree', 'calculator', 'simulator'
 
   // Persist on state changes
   useEffect(() => {
@@ -138,6 +139,7 @@ export default function App() {
               { id: 'recipes', label: 'Recipes', icon: Scroll, color: 'text-emerald-400', count: data.recipes.length },
               { id: 'items', label: 'Items & Materials', icon: Box, color: 'text-indigo-400', count: data.items.length },
               { id: 'conditions', label: 'Crafting Conditions', icon: Anvil, color: 'text-purple-400', count: data.conditions.length },
+              { id: 'graphtree', label: 'Visual Node Graph', icon: Network, color: 'text-amber-400' },
               { id: 'calculator', label: 'Crafting Tree & Calculator', icon: Calculator, color: 'text-sky-400' },
               { id: 'simulator', label: 'Interactive Simulator', icon: Play, color: 'text-amber-400' },
             ].map((tab) => {
@@ -190,6 +192,14 @@ export default function App() {
           <ConditionManager
             conditions={data.conditions}
             setConditions={setConditions}
+            recipes={data.recipes}
+          />
+        )}
+
+        {activeTab === 'graphtree' && (
+          <TechTreeGraph
+            items={data.items}
+            conditions={data.conditions}
             recipes={data.recipes}
           />
         )}
