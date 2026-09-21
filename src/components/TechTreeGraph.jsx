@@ -39,7 +39,9 @@ import {
   Anvil,
   GraduationCap,
   Award,
-  Package
+  Package,
+  Filter,
+  HelpCircle
 } from 'lucide-react';
 
 const ICON_MAP = {
@@ -69,7 +71,6 @@ function renderItemIcon(iconName, defaultClass = "w-5 h-5 text-amber-400") {
   if (IconComponent) {
     return <IconComponent className={defaultClass} />;
   }
-  // Fallback if string is an emoji or unknown icon
   if (typeof iconName === 'string' && iconName.length <= 2) {
     return <span className="text-xl select-none">{iconName}</span>;
   }
@@ -215,7 +216,12 @@ const nodeTypes = {
 export default function TechTreeGraph({ items = [], recipes = [], conditions = [] }) {
   const [selectedNodeData, setSelectedNodeData] = useState(null);
   const [filterCategory, setFilterCategory] = useState('all');
+  const [filterConditionId, setFilterConditionId] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [showLegend, setShowLegend] = useState(true);
+
+  // Helper to extract inputs array regardless of schema variant
+  const getRecipeInputs = (recipe) => recipe.inputs || recipe.ingredients || [];
 
   // Generate Graph Nodes & Edges automatically based on dependency tree depth
   const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
@@ -224,8 +230,11 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
     const itemMap = new Map(items.map((i) => [i.id, i]));
     const conditionMap = new Map(conditions.map((c) => [c.id, c]));
 
-    // Helper to extract inputs array regardless of schema variant (inputs vs ingredients)
-    const getRecipeInputs = (recipe) => recipe.inputs || recipe.ingredients || [];
+    // Filter recipes based on tag / condition selection
+    const eligibleRecipes = recipes.filter((recipe) => {
+      if (filterConditionId === 'all') return true;
+      return (recipe.conditionIds || []).includes(filterConditionId);
+    });
 
     // Calculate depth for items
     const itemDepths = new Map();
@@ -245,7 +254,7 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
       changed = false;
       iterations++;
 
-      recipes.forEach((recipe) => {
+      eligibleRecipes.forEach((recipe) => {
         const recipeInputs = getRecipeInputs(recipe);
         const inputDepths = recipeInputs.map((ing) => itemDepths.get(ing.itemId || ing.id));
         if (inputDepths.every((d) => d !== undefined)) {
@@ -310,10 +319,10 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
       const depth = itemDepths.get(item.id) || 0;
       const pos = getNextPos(depth);
 
-      const recipesUsing = recipes.filter((r) =>
+      const recipesUsing = eligibleRecipes.filter((r) =>
         getRecipeInputs(r).some((ing) => (ing.itemId || ing.id) === item.id)
       );
-      const recipesProducing = recipes.filter((r) => r.outputItemId === item.id);
+      const recipesProducing = eligibleRecipes.filter((r) => r.outputItemId === item.id);
 
       graphNodes.push({
         id: `item-${item.id}`,
@@ -328,7 +337,7 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
     });
 
     // Create Recipe Nodes and Edges
-    recipes.forEach((recipe) => {
+    eligibleRecipes.forEach((recipe) => {
       const outputItem = itemMap.get(recipe.outputItemId);
       if (!outputItem || !filteredItemIds.has(outputItem.id)) return;
 
@@ -386,7 +395,7 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
     });
 
     return { nodes: graphNodes, edges: graphEdges };
-  }, [items, recipes, conditions, filterCategory, searchTerm]);
+  }, [items, recipes, conditions, filterCategory, filterConditionId, searchTerm]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -403,42 +412,71 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
   return (
     <div className="h-[calc(100vh-140px)] flex flex-col bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl relative">
       {/* Top Filter Bar */}
-      <div className="p-4 bg-slate-900/80 border-b border-slate-800 backdrop-blur-md flex flex-wrap items-center justify-between gap-4 z-10">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-gradient-to-br from-amber-500/20 to-orange-500/20 text-amber-400 rounded-lg border border-amber-500/30">
-            <Layers className="w-5 h-5" />
+      <div className="p-3 bg-slate-900/90 border-b border-slate-800 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 z-10">
+        <div className="flex items-center gap-2.5">
+          <div className="p-1.5 bg-gradient-to-br from-amber-500/20 to-orange-500/20 text-amber-400 rounded-lg border border-amber-500/30">
+            <Layers className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
+            <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
               Recipe & Tech Tree Graph
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-[11px] text-slate-400">
               Interactive node graph showing dependencies, workstations, and craft pathways
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
           {/* Search Input */}
           <input
             type="text"
             placeholder="Search items..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500"
+            className="px-2.5 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500"
           />
 
           {/* Category Filter */}
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
-            className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-amber-500 capitalize"
+            className="px-2.5 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-slate-200 focus:outline-none focus:border-amber-500 capitalize"
           >
             <option value="all">All Categories</option>
             <option value="raw">Raw Materials</option>
             <option value="intermediate">Intermediate Components</option>
             <option value="finished">Finished Products</option>
           </select>
+
+          {/* Workstation / Tag Filter */}
+          <div className="flex items-center gap-1.5 bg-slate-800/80 px-2 py-1 rounded-lg border border-slate-700">
+            <Filter className="w-3.5 h-3.5 text-amber-400" />
+            <select
+              value={filterConditionId}
+              onChange={(e) => setFilterConditionId(e.target.value)}
+              className="bg-transparent text-xs text-slate-200 focus:outline-none font-medium"
+            >
+              <option value="all" className="bg-slate-900">All Workstations / Skills</option>
+              {conditions.map((cond) => (
+                <option key={cond.id} value={cond.id} className="bg-slate-900">
+                  {cond.name} ({cond.type})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            onClick={() => setShowLegend(!showLegend)}
+            className={`px-2.5 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer ${
+              showLegend
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                : 'bg-slate-800 text-slate-400 border-slate-700'
+            }`}
+          >
+            <HelpCircle className="w-3 h-3" />
+            Legend
+          </button>
         </div>
       </div>
 
@@ -462,13 +500,54 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
           <MiniMap
             className="!bg-slate-900/90 !border-slate-800 !rounded-lg overflow-hidden"
             nodeColor={(node) => {
-              if (node.type === 'itemNode') return '#38bdf8';
+              if (node.type === 'itemNode') {
+                const cat = (node.data.item?.category || '').toLowerCase();
+                if (cat === 'raw') return '#10b981';
+                if (cat === 'intermediate') return '#3b82f6';
+                if (cat === 'finished') return '#a855f7';
+              }
               if (node.type === 'recipeNode') return '#f59e0b';
               return '#64748b';
             }}
             maskColor="rgba(15, 23, 42, 0.7)"
           />
         </ReactFlow>
+
+        {/* Color Legend Overlay */}
+        {showLegend && (
+          <div className="absolute top-4 left-4 bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 shadow-xl backdrop-blur-md z-20 text-xs text-slate-200 space-y-2 max-w-xs">
+            <div className="font-bold text-slate-100 border-b border-slate-800 pb-1 flex justify-between items-center">
+              <span>Graph Node Legend</span>
+              <button
+                onClick={() => setShowLegend(false)}
+                className="text-slate-500 hover:text-slate-300 text-[10px]"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-emerald-500 border border-emerald-400 inline-block"></span>
+                <span>Raw Material</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-blue-500 border border-blue-400 inline-block"></span>
+                <span>Intermediate</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-purple-500 border border-purple-400 inline-block"></span>
+                <span>Finished Product</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-amber-500 border border-amber-400 inline-block"></span>
+                <span>Recipe Craft</span>
+              </div>
+            </div>
+            <div className="text-[10px] text-slate-400 border-t border-slate-800/80 pt-1.5">
+              • Arrows show flow from Ingredients → Recipe → Output.
+            </div>
+          </div>
+        )}
 
         {/* Selected Node Details Side Panel */}
         {selectedNodeData && (

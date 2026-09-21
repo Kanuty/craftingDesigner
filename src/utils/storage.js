@@ -1,10 +1,10 @@
 // Default presets for game crafting systems
 
 export const PRESETS = {
-  witcher: {
-    id: 'witcher',
-    name: 'The Witcher 3 Crafting',
-    description: 'Alchemy potions, oils, and Witcher gear with workstation and skill conditions.',
+  rpg: {
+    id: 'rpg',
+    name: 'RPG Crafting',
+    description: 'Alchemy potions, oils, and hero gear with workstation and skill conditions.',
     items: [
       { id: 'celandine', name: 'Celandine', category: 'Raw', icon: 'Leaf', description: 'Common yellow herb used in healing potions.', tier: 1 },
       { id: 'drowner_brain', name: 'Drowner Brain', category: 'Raw', icon: 'Skull', description: 'Monster component harvested from drowners.', tier: 1 },
@@ -21,7 +21,7 @@ export const PRESETS = {
       { id: 'alchemy_table', name: 'Alchemy Workbench', type: 'workstation', level: 'Basic', description: 'Required for compounding potion ingredients.', icon: 'FlaskRound' },
       { id: 'master_forge', name: 'Master Blacksmith Forge', type: 'workstation', level: 'Master Tier', description: 'High temperature forge needed for master weaponry.', icon: 'Anvil' },
       { id: 'herbalism_1', name: 'Herbalism Skill', type: 'skill', level: 'Level 1', description: 'Knowledge of basic plant properties.', icon: 'GraduationCap' },
-      { id: 'witcher_crafting_3', name: 'Witcher Crafting', type: 'skill', level: 'Level 3', description: 'Mastery in Witcher school gear crafting.', icon: 'Award' }
+      { id: 'witcher_crafting_3', name: 'Master Crafting', type: 'skill', level: 'Level 3', description: 'Mastery in heroic gear crafting.', icon: 'Award' }
     ],
     recipes: [
       {
@@ -56,7 +56,7 @@ export const PRESETS = {
           { itemId: 'dwarven_spirit', quantity: 1 }
         ],
         conditionIds: ['alchemy_table', 'herbalism_1'],
-        notes: 'Core Witcher healing potion.'
+        notes: 'Core RPG healing potion.'
       },
       {
         id: 'recipe_silver_sword',
@@ -70,13 +70,13 @@ export const PRESETS = {
           { itemId: 'monster_bone', quantity: 1 }
         ],
         conditionIds: ['master_forge', 'witcher_crafting_3'],
-        notes: 'High tier Witcher blade.'
+        notes: 'High tier RPG blade.'
       }
     ]
   },
-  factorio: {
-    id: 'factorio',
-    name: 'Factorio Automation',
+  crafter: {
+    id: 'crafter',
+    name: 'Crafter Automation',
     description: 'Factory production lines with furnaces, assembling machines, and tech research requirements.',
     items: [
       { id: 'iron_ore', name: 'Iron Ore', category: 'Raw', icon: 'Mountain', description: 'Mined iron ore.', tier: 1 },
@@ -179,7 +179,8 @@ export const PRESETS = {
   }
 };
 
-const STORAGE_KEY = 'crafting_designer_data_v1';
+const STORAGE_KEY = 'crafting_designer_data_v2';
+const CUSTOM_PRESETS_KEY = 'crafting_designer_custom_presets_v2';
 
 export function loadDataFromStorage() {
   try {
@@ -193,8 +194,8 @@ export function loadDataFromStorage() {
   } catch (err) {
     console.error('Failed to load storage data:', err);
   }
-  // Default to witcher preset if nothing saved
-  return PRESETS.witcher;
+  // Default to RPG preset if nothing saved
+  return PRESETS.rpg;
 }
 
 export function saveDataToStorage(data) {
@@ -203,4 +204,46 @@ export function saveDataToStorage(data) {
   } catch (err) {
     console.error('Failed to save storage data:', err);
   }
+}
+
+export function loadCustomPresets() {
+  try {
+    const saved = localStorage.getItem(CUSTOM_PRESETS_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (err) {
+    console.error('Failed to load custom presets:', err);
+  }
+  return {};
+}
+
+export function saveCustomPreset(presetName, data) {
+  const custom = loadCustomPresets();
+  const id = `custom_${Date.now()}`;
+  custom[id] = {
+    id,
+    name: presetName,
+    description: 'User created custom preset',
+    items: data.items,
+    conditions: data.conditions,
+    recipes: data.recipes
+  };
+  try {
+    localStorage.setItem(CUSTOM_PRESETS_KEY, JSON.stringify(custom));
+  } catch (err) {
+    console.error('Failed to save custom preset:', err);
+  }
+  return custom;
+}
+
+export function deleteCustomPreset(id) {
+  const custom = loadCustomPresets();
+  delete custom[id];
+  try {
+    localStorage.setItem(CUSTOM_PRESETS_KEY, JSON.stringify(custom));
+  } catch (err) {
+    console.error('Failed to delete custom preset:', err);
+  }
+  return custom;
 }
