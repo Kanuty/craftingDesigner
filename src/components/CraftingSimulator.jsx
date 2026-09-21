@@ -57,6 +57,20 @@ export function CraftingSimulator({ items, conditions, recipes }) {
     setLastCraftMessage(null);
   };
 
+  const getRequiredFuels = (recipe) => {
+    const fuels = {};
+    if (recipe.fuelItemId && recipe.fuelQuantity > 0) {
+      fuels[recipe.fuelItemId] = (fuels[recipe.fuelItemId] || 0) + recipe.fuelQuantity;
+    }
+    (recipe.conditionIds || []).forEach(condId => {
+      const cond = getConditionById(condId);
+      if (cond && cond.fuelItemId && cond.fuelQuantity > 0) {
+        fuels[cond.fuelItemId] = (fuels[cond.fuelItemId] || 0) + cond.fuelQuantity;
+      }
+    });
+    return fuels;
+  };
+
   const canCraftRecipe = (recipe) => {
     const missingInputs = [];
     recipe.inputs.forEach(input => {
@@ -75,10 +89,22 @@ export function CraftingSimulator({ items, conditions, recipes }) {
       }
     });
 
+    const missingFuels = [];
+    const requiredFuels = getRequiredFuels(recipe);
+    Object.entries(requiredFuels).forEach(([fuelItemId, reqQty]) => {
+      const available = inventory[fuelItemId] || 0;
+      if (available < reqQty) {
+        const fuelItem = getItemById(fuelItemId);
+        missingFuels.push(`${reqQty - available}x ${fuelItem ? fuelItem.name : fuelItemId}`);
+      }
+    });
+
     return {
-      canCraft: missingInputs.length === 0 && missingConditions.length === 0,
+      canCraft: missingInputs.length === 0 && missingConditions.length === 0 && missingFuels.length === 0,
       missingInputs,
-      missingConditions
+      missingConditions,
+      missingFuels,
+      requiredFuels
     };
   };
 
@@ -92,6 +118,9 @@ export function CraftingSimulator({ items, conditions, recipes }) {
       if (status.missingConditions.length > 0) {
         errMsg += ` Missing conditions: ${status.missingConditions.join(', ')}.`;
       }
+      if (status.missingFuels.length > 0) {
+        errMsg += ` Missing fuel: ${status.missingFuels.join(', ')}.`;
+      }
       setLastCraftMessage({ type: 'error', text: errMsg });
       return;
     }
@@ -100,6 +129,13 @@ export function CraftingSimulator({ items, conditions, recipes }) {
     const nextInv = { ...inventory };
     recipe.inputs.forEach(inp => {
       nextInv[inp.itemId] = (nextInv[inp.itemId] || 0) - inp.quantity;
+    });
+
+    // Deduct fuels
+    Object.entries(status.requiredFuels).forEach(([fuelItemId, qty]) => {
+      if (nextInv[fuelItemId] !== undefined) {
+        nextInv[fuelItemId] = Math.max(0, (nextInv[fuelItemId] || 0) - qty);
+      }
     });
 
     // Add output
@@ -329,6 +365,32 @@ export function CraftingSimulator({ items, conditions, recipes }) {
                                   }`}
                                 >
                                   {cond ? cond.name : condId} {isUnlocked ? '✓' : '✗'}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Fuel status */}
+                      {Object.keys(status.requiredFuels).length > 0 && (
+                        <div className="space-y-1 mt-2">
+                          <p className={`text-[10px] font-bold uppercase ${theme.textMuted}`}>Required Fuel:</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {Object.entries(status.requiredFuels).map(([fuelItemId, reqQty]) => {
+                              const available = inventory[fuelItemId] || 0;
+                              const hasEnough = available >= reqQty;
+                              const fuelItem = getItemById(fuelItemId);
+                              return (
+                                <span
+                                  key={fuelItemId}
+                                  className={`text-[10px] px-2 py-0.5 rounded border font-bold ${
+                                    hasEnough
+                                      ? 'border-amber-500/50 bg-amber-950/40 text-amber-300'
+                                      : 'bg-rose-950/60 text-rose-300 border-rose-800'
+                                  }`}
+                                >
+                                  Fuel ({fuelItem ? fuelItem.name : fuelItemId}): {available}/{reqQty}
                                 </span>
                               );
                             })}

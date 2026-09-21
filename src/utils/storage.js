@@ -6,22 +6,22 @@ export const PRESETS = {
     name: 'RPG Crafting',
     description: 'Alchemy potions, oils, and hero gear with workstation and skill conditions.',
     items: [
-      { id: 'celandine', name: 'Celandine', category: 'Raw', icon: 'Leaf', description: 'Common yellow herb used in healing potions.', tier: 1 },
-      { id: 'drowner_brain', name: 'Drowner Brain', category: 'Raw', icon: 'Skull', description: 'Monster component harvested from drowners.', tier: 1 },
-      { id: 'dwarven_spirit', name: 'Dwarven Spirit', category: 'Intermediate', icon: 'Wine', description: 'Strong alcohol base for alchemy potions.', tier: 1 },
-      { id: 'silver_ore', name: 'Silver Ore', category: 'Raw', icon: 'Gem', description: 'Raw silver mined from mountains.', tier: 1 },
-      { id: 'dark_iron_ore', name: 'Dark Iron Ore', category: 'Raw', icon: 'Mountain', description: 'Rare dark iron ore for advanced forging.', tier: 2 },
-      { id: 'silver_ingot', name: 'Silver Ingot', category: 'Intermediate', icon: 'Box', description: 'Refined silver ingot.', tier: 1 },
-      { id: 'dark_iron_ingot', name: 'Dark Iron Ingot', category: 'Intermediate', icon: 'Shield', description: 'High durability dark iron ingot.', tier: 2 },
-      { id: 'monster_bone', name: 'Monster Bone', category: 'Raw', icon: 'Bone', description: 'Dense monster bone for crafting weapon hilts.', tier: 2 },
-      { id: 'swallow_potion', name: 'Swallow Potion', category: 'Finished', icon: 'FlaskConical', description: 'Accelerates vital regeneration.', tier: 1 },
-      { id: 'master_silver_sword', name: 'Mastercrafted Silver Sword', category: 'Finished', icon: 'Sword', description: 'Deadly blade effective against monsters.', tier: 3 }
+      { id: 'celandine', name: 'Celandine', category: 'Raw', icon: 'Leaf', description: 'Common yellow herb used in healing potions.', tier: 1, tags: ['#plants', '#herb', '#raw'] },
+      { id: 'drowner_brain', name: 'Drowner Brain', category: 'Raw', icon: 'Skull', description: 'Monster component harvested from drowners.', tier: 1, tags: ['#monster', '#trash', '#raw'] },
+      { id: 'dwarven_spirit', name: 'Dwarven Spirit', category: 'Intermediate', icon: 'Wine', description: 'Strong alcohol base for alchemy potions.', tier: 1, tags: ['#liquid', '#fuel'] },
+      { id: 'silver_ore', name: 'Silver Ore', category: 'Raw', icon: 'Gem', description: 'Raw silver mined from mountains.', tier: 1, tags: ['#ore', '#mined', '#raw'] },
+      { id: 'dark_iron_ore', name: 'Dark Iron Ore', category: 'Raw', icon: 'Mountain', description: 'Rare dark iron ore for advanced forging.', tier: 2, tags: ['#ore', '#mined', '#raw'] },
+      { id: 'silver_ingot', name: 'Silver Ingot', category: 'Intermediate', icon: 'Box', description: 'Refined silver ingot.', tier: 1, tags: ['#metal', '#intermediate'] },
+      { id: 'dark_iron_ingot', name: 'Dark Iron Ingot', category: 'Intermediate', icon: 'Shield', description: 'High durability dark iron ingot.', tier: 2, tags: ['#metal', '#intermediate'] },
+      { id: 'monster_bone', name: 'Monster Bone', category: 'Raw', icon: 'Bone', description: 'Dense monster bone for crafting weapon hilts.', tier: 2, tags: ['#bone', '#trash'] },
+      { id: 'swallow_potion', name: 'Swallow Potion', category: 'Finished', icon: 'FlaskConical', description: 'Accelerates vital regeneration.', tier: 1, tags: ['#potion', '#finished'] },
+      { id: 'master_silver_sword', name: 'Mastercrafted Silver Sword', category: 'Finished', icon: 'Sword', description: 'Deadly blade effective against monsters.', tier: 3, tags: ['#weapon', '#gear'] }
     ],
     conditions: [
-      { id: 'alchemy_table', name: 'Alchemy Workbench', type: 'workstation', level: 'Basic', description: 'Required for compounding potion ingredients.', icon: 'FlaskRound' },
-      { id: 'master_forge', name: 'Master Blacksmith Forge', type: 'workstation', level: 'Master Tier', description: 'High temperature forge needed for master weaponry.', icon: 'Anvil' },
-      { id: 'herbalism_1', name: 'Herbalism Skill', type: 'skill', level: 'Level 1', description: 'Knowledge of basic plant properties.', icon: 'GraduationCap' },
-      { id: 'witcher_crafting_3', name: 'Master Crafting', type: 'skill', level: 'Level 3', description: 'Mastery in heroic gear crafting.', icon: 'Award' }
+      { id: 'alchemy_table', name: 'Alchemy Workbench', type: 'workstation', level: 'Basic', description: 'Required for compounding potion ingredients.', icon: 'FlaskRound', fuelItemId: 'dwarven_spirit', fuelQuantity: 1 },
+      { id: 'master_forge', name: 'Master Blacksmith Forge', type: 'workstation', level: 'Master Tier', description: 'High temperature forge needed for master weaponry.', icon: 'Anvil', fuelItemId: '', fuelQuantity: 0 },
+      { id: 'herbalism_1', name: 'Herbalism Skill', type: 'skill', level: 'Level 1', description: 'Knowledge of basic plant properties.', icon: 'GraduationCap', fuelItemId: '', fuelQuantity: 0 },
+      { id: 'witcher_crafting_3', name: 'Master Crafting', type: 'skill', level: 'Level 3', description: 'Mastery in heroic gear crafting.', icon: 'Award', fuelItemId: '', fuelQuantity: 0 }
     ],
     recipes: [
       {
@@ -79,24 +79,24 @@ export const PRESETS = {
     name: 'Crafter Automation',
     description: 'Factory production lines with furnaces, assembling machines, and tech research requirements.',
     items: [
-      { id: 'iron_ore', name: 'Iron Ore', category: 'Raw', icon: 'Mountain', description: 'Mined iron ore.', tier: 1 },
-      { id: 'copper_ore', name: 'Copper Ore', category: 'Raw', icon: 'Gem', description: 'Mined copper ore.', tier: 1 },
-      { id: 'coal', name: 'Coal', category: 'Raw', icon: 'Flame', description: 'Fuel source.', tier: 1 },
-      { id: 'iron_plate', name: 'Iron Plate', category: 'Intermediate', icon: 'Box', description: 'Basic smelting output for iron.', tier: 1 },
-      { id: 'copper_plate', name: 'Copper Plate', category: 'Intermediate', icon: 'Box', description: 'Basic smelting output for copper.', tier: 1 },
-      { id: 'copper_cable', name: 'Copper Cable', category: 'Intermediate', icon: 'Zap', description: 'Used for electrical components.', tier: 1 },
-      { id: 'iron_gear', name: 'Iron Gear Wheel', category: 'Intermediate', icon: 'Cog', description: 'Mechanical component.', tier: 1 },
-      { id: 'green_chip', name: 'Electronic Circuit', category: 'Intermediate', icon: 'Cpu', description: 'Basic automation circuit board.', tier: 2 },
-      { id: 'steel_plate', name: 'Steel Plate', category: 'Intermediate', icon: 'Shield', description: 'High strength steel alloy.', tier: 2 },
-      { id: 'red_science', name: 'Automation Science Pack', category: 'Finished', icon: 'FlaskConical', description: 'Red science pack for early research.', tier: 1 },
-      { id: 'green_science', name: 'Logistic Science Pack', category: 'Finished', icon: 'FlaskRound', description: 'Green science pack for logistics research.', tier: 2 }
+      { id: 'iron_ore', name: 'Iron Ore', category: 'Raw', icon: 'Mountain', description: 'Mined iron ore.', tier: 1, tags: ['#ore', '#mined', '#raw'] },
+      { id: 'copper_ore', name: 'Copper Ore', category: 'Raw', icon: 'Gem', description: 'Mined copper ore.', tier: 1, tags: ['#ore', '#mined', '#raw'] },
+      { id: 'coal', name: 'Coal', category: 'Raw', icon: 'Flame', description: 'Fuel source.', tier: 1, tags: ['#fuel', '#ore', '#raw'] },
+      { id: 'iron_plate', name: 'Iron Plate', category: 'Intermediate', icon: 'Box', description: 'Basic smelting output for iron.', tier: 1, tags: ['#metal', '#intermediate'] },
+      { id: 'copper_plate', name: 'Copper Plate', category: 'Intermediate', icon: 'Box', description: 'Basic smelting output for copper.', tier: 1, tags: ['#metal', '#intermediate'] },
+      { id: 'copper_cable', name: 'Copper Cable', category: 'Intermediate', icon: 'Zap', description: 'Used for electrical components.', tier: 1, tags: ['#component', '#intermediate'] },
+      { id: 'iron_gear', name: 'Iron Gear Wheel', category: 'Intermediate', icon: 'Cog', description: 'Mechanical component.', tier: 1, tags: ['#component', '#intermediate'] },
+      { id: 'green_chip', name: 'Electronic Circuit', category: 'Intermediate', icon: 'Cpu', description: 'Basic automation circuit board.', tier: 2, tags: ['#electronics', '#component'] },
+      { id: 'steel_plate', name: 'Steel Plate', category: 'Intermediate', icon: 'Shield', description: 'High strength steel alloy.', tier: 2, tags: ['#metal', '#intermediate'] },
+      { id: 'red_science', name: 'Automation Science Pack', category: 'Finished', icon: 'FlaskConical', description: 'Red science pack for early research.', tier: 1, tags: ['#science', '#finished'] },
+      { id: 'green_science', name: 'Logistic Science Pack', category: 'Finished', icon: 'FlaskRound', description: 'Green science pack for logistics research.', tier: 2, tags: ['#science', '#finished'] }
     ],
     conditions: [
-      { id: 'stone_furnace', name: 'Stone Furnace', type: 'workstation', level: 'Tier 1', description: 'Basic furnace fueled by coal.', icon: 'Flame' },
-      { id: 'steel_furnace', name: 'Steel Furnace', type: 'workstation', level: 'Tier 2', description: 'Double speed furnace.', icon: 'Zap' },
-      { id: 'assembler_1', name: 'Assembling Machine 1', type: 'workstation', level: 'Tier 1', description: 'Automates basic recipes.', icon: 'Cog' },
-      { id: 'electronics_tech', name: 'Electronics Tech', type: 'skill', level: 'Researched', description: 'Unlocks circuit components.', icon: 'Cpu' },
-      { id: 'steel_processing_tech', name: 'Steel Processing Tech', type: 'skill', level: 'Researched', description: 'Unlocks steel smelting.', icon: 'Award' }
+      { id: 'stone_furnace', name: 'Stone Furnace', type: 'workstation', level: 'Tier 1', description: 'Basic furnace fueled by coal.', icon: 'Flame', fuelItemId: 'coal', fuelQuantity: 1 },
+      { id: 'steel_furnace', name: 'Steel Furnace', type: 'workstation', level: 'Tier 2', description: 'Double speed furnace.', icon: 'Zap', fuelItemId: 'coal', fuelQuantity: 1 },
+      { id: 'assembler_1', name: 'Assembling Machine 1', type: 'workstation', level: 'Tier 1', description: 'Automates basic recipes.', icon: 'Cog', fuelItemId: '', fuelQuantity: 0 },
+      { id: 'electronics_tech', name: 'Electronics Tech', type: 'skill', level: 'Researched', description: 'Unlocks circuit components.', icon: 'Cpu', fuelItemId: '', fuelQuantity: 0 },
+      { id: 'steel_processing_tech', name: 'Steel Processing Tech', type: 'skill', level: 'Researched', description: 'Unlocks steel smelting.', icon: 'Award', fuelItemId: '', fuelQuantity: 0 }
     ],
     recipes: [
       {
