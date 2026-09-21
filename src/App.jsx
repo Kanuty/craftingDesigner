@@ -106,7 +106,7 @@ function MainApp() {
 
           {/* Logo & Title */}
           <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg border ${theme.cardBg}`}>
+            <div className={`p-2 rounded-lg border ${theme.headerControlBg}`}>
               <Gamepad2 className="w-5 h-5 text-current" />
             </div>
             <div>
@@ -122,12 +122,12 @@ function MainApp() {
           {/* Theme Selector & Presets */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {/* Theme Selector */}
-            <div className={`flex items-center gap-1 p-1 rounded-lg border ${theme.cardBg}`}>
-              <span className="text-[10px] font-bold uppercase tracking-wider px-1 opacity-75">Theme:</span>
+            <div className={`flex items-center gap-1 p-1 rounded-lg border ${theme.headerControlBg}`}>
+              <span className="text-[10px] font-bold uppercase tracking-wider px-1 opacity-90">Theme:</span>
               <button
                 onClick={() => setThemeId('blueprint')}
-                className={`flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold transition-all ${
-                  themeId === 'blueprint' ? theme.buttonActive : 'opacity-70 hover:opacity-100'
+                className={`flex items-center gap-1 px-2 py-1 rounded text-[11px] font-bold transition-all ${
+                  themeId === 'blueprint' ? theme.buttonActive : 'opacity-80 hover:opacity-100 hover:bg-white/10'
                 }`}
               >
                 <Compass className="w-3 h-3" />
@@ -135,8 +135,8 @@ function MainApp() {
               </button>
               <button
                 onClick={() => setThemeId('cyber')}
-                className={`flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold transition-all ${
-                  themeId === 'cyber' ? theme.buttonActive : 'opacity-70 hover:opacity-100'
+                className={`flex items-center gap-1 px-2 py-1 rounded text-[11px] font-bold transition-all ${
+                  themeId === 'cyber' ? theme.buttonActive : 'opacity-80 hover:opacity-100 hover:bg-white/10'
                 }`}
               >
                 <Cpu className="w-3 h-3" />
@@ -144,8 +144,8 @@ function MainApp() {
               </button>
               <button
                 onClick={() => setThemeId('military')}
-                className={`flex items-center gap-1 px-2 py-1 rounded text-[11px] font-semibold transition-all ${
-                  themeId === 'military' ? theme.buttonActive : 'opacity-70 hover:opacity-100'
+                className={`flex items-center gap-1 px-2 py-1 rounded text-[11px] font-bold transition-all ${
+                  themeId === 'military' ? theme.buttonActive : 'opacity-80 hover:opacity-100 hover:bg-white/10'
                 }`}
               >
                 <Shield className="w-3 h-3" />
@@ -154,8 +154,8 @@ function MainApp() {
             </div>
 
             {/* Presets */}
-            <div className={`flex items-center gap-1 p-1 rounded-lg border ${theme.cardBg}`}>
-              <span className="text-[10px] font-bold uppercase tracking-wider px-1 opacity-75">Preset:</span>
+            <div className={`flex items-center gap-1 p-1 rounded-lg border ${theme.headerControlBg}`}>
+              <span className="text-[10px] font-bold uppercase tracking-wider px-1 opacity-90">Preset:</span>
               <button
                 onClick={() => handleLoadPreset(PRESETS.rpg, 'RPG Crafting')}
                 className={`px-2 py-1 text-xs rounded border ${theme.buttonSecondary}`}
@@ -255,7 +255,7 @@ function MainApp() {
                   <Icon className="w-3.5 h-3.5" />
                   <span>{tab.label}</span>
                   {tab.count !== undefined && (
-                    <span className="ml-1 text-[10px] font-bold px-1.5 py-0.2 rounded border border-current opacity-80">
+                    <span className="ml-1 text-[10px] font-bold px-1.5 py-0.2 rounded border border-current opacity-90">
                       {tab.count}
                     </span>
                   )}
@@ -321,7 +321,7 @@ function MainApp() {
       {/* Custom Preset Save Modal */}
       {isCustomPresetModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className={`${theme.cardBg} border rounded-xl w-full max-w-md p-5 shadow-2xl space-y-4 font-mono`}>
+          <div className={`${theme.cardBg} border rounded-xl w-full max-w-md p-5 shadow-2xl space-y-4 font-mono ${theme.textBright}`}>
             <h2 className={`text-base font-bold flex items-center gap-2 uppercase tracking-wide ${theme.accentText}`}>
               <Save className="w-4 h-4" /> Save Custom Preset
             </h2>
