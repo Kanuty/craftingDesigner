@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Plus, Search, Edit2, Trash2, Box, Leaf, Flame, Gem, Mountain,
   Wine, Shield, Sword, FlaskConical, FlaskRound, Bone, Cpu, Cog, Zap, Skull,
-  Info
+  Info, Tag, X
 } from 'lucide-react';
 import { useTheme } from '../utils/theme';
 
@@ -33,6 +33,7 @@ export function ItemManager({ items, setItems, recipes = [] }) {
   const { theme } = useTheme();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedTag, setSelectedTag] = useState('All');
   const [selectedItem, setSelectedItem] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,10 +45,19 @@ export function ItemManager({ items, setItems, recipes = [] }) {
     category: 'Raw',
     icon: 'Box',
     description: '',
-    tier: 1
+    tier: 1,
+    tags: []
   });
+  const [tagInput, setTagInput] = useState('');
 
   const categories = ['All', 'Raw', 'Intermediate', 'Finished'];
+
+  // Collect all unique tags across items
+  const allUniqueTags = Array.from(
+    new Set(
+      items.flatMap(item => (Array.isArray(item.tags) ? item.tags : []))
+    )
+  );
 
   const getCategoryBadgeClass = (category) => {
     const cat = (category || '').toLowerCase();
@@ -58,11 +68,15 @@ export function ItemManager({ items, setItems, recipes = [] }) {
   };
 
   const filteredItems = items.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          item.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          item.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchLower = searchTerm.toLowerCase();
+    const itemTags = Array.isArray(item.tags) ? item.tags : [];
+    const matchesSearch = item.name.toLowerCase().includes(searchLower) ||
+                          item.description?.toLowerCase().includes(searchLower) ||
+                          item.id.toLowerCase().includes(searchLower) ||
+                          itemTags.some(t => t.toLowerCase().includes(searchLower));
     const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    const matchesTag = selectedTag === 'All' || itemTags.includes(selectedTag);
+    return matchesSearch && matchesCategory && matchesTag;
   });
 
   const handleOpenAdd = () => {
@@ -73,8 +87,10 @@ export function ItemManager({ items, setItems, recipes = [] }) {
       category: 'Raw',
       icon: 'Box',
       description: '',
-      tier: 1
+      tier: 1,
+      tags: []
     });
+    setTagInput('');
     setIsModalOpen(true);
   };
 
@@ -87,9 +103,25 @@ export function ItemManager({ items, setItems, recipes = [] }) {
       category: item.category || 'Raw',
       icon: item.icon || 'Box',
       description: item.description || '',
-      tier: item.tier || 1
+      tier: item.tier || 1,
+      tags: Array.isArray(item.tags) ? [...item.tags] : []
     });
+    setTagInput('');
     setIsModalOpen(true);
+  };
+
+  const handleAddTag = (tagToAdd) => {
+    const raw = (tagToAdd || tagInput).trim();
+    if (!raw) return;
+    const formatted = raw.startsWith('#') ? raw : `#${raw}`;
+    if (!formData.tags.includes(formatted)) {
+      setFormData(prev => ({ ...prev, tags: [...prev.tags, formatted] }));
+    }
+    setTagInput('');
+  };
+
+  const handleRemoveTag = (tagToRemove) => {
+    setFormData(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tagToRemove) }));
   };
 
   const handleDelete = (itemId, e) => {
@@ -153,7 +185,7 @@ export function ItemManager({ items, setItems, recipes = [] }) {
             <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${theme.textMuted}`} />
             <input
               type="text"
-              placeholder="Filter items..."
+              placeholder="Filter items or #tags..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`w-full pl-9 pr-3 py-1.5 rounded text-xs focus:outline-none ${theme.inputBg}`}
@@ -175,6 +207,23 @@ export function ItemManager({ items, setItems, recipes = [] }) {
               </button>
             ))}
           </div>
+
+          {/* Tag Filter Selector */}
+          {allUniqueTags.length > 0 && (
+            <div className={`flex items-center gap-1.5 px-2 py-1 rounded border ${theme.border} ${theme.inputBg}`}>
+              <Tag className="w-3.5 h-3.5 opacity-70" />
+              <select
+                value={selectedTag}
+                onChange={(e) => setSelectedTag(e.target.value)}
+                className="bg-transparent text-xs focus:outline-none font-bold"
+              >
+                <option value="All">All Tags</option>
+                {allUniqueTags.map(tag => (
+                  <option key={tag} value={tag}>{tag}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         <button
@@ -229,7 +278,16 @@ export function ItemManager({ items, setItems, recipes = [] }) {
                           </div>
                         </td>
                         <td className="py-2 px-3 font-semibold">
-                          {item.name}
+                          <div>{item.name}</div>
+                          {Array.isArray(item.tags) && item.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-0.5">
+                              {item.tags.map(t => (
+                                <span key={t} className="text-[9px] px-1 py-0.2 rounded border border-current/30 font-bold opacity-80">
+                                  {t}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </td>
                         <td className="py-2 px-3">
                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${getCategoryBadgeClass(item.category)}`}>
@@ -303,6 +361,22 @@ export function ItemManager({ items, setItems, recipes = [] }) {
                   <span className={`block text-[10px] uppercase font-bold ${theme.textMuted}`}>Tier</span>
                   <span className="font-bold text-sm block mt-1">Level {selectedItem.tier || 1}</span>
                 </div>
+              </div>
+
+              {/* Custom Tags Section in Inspector */}
+              <div>
+                <span className={`block text-[10px] uppercase font-bold mb-1 ${theme.textMuted}`}>Custom Tags</span>
+                {Array.isArray(selectedItem.tags) && selectedItem.tags.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {selectedItem.tags.map(t => (
+                      <span key={t} className={`px-2 py-0.5 rounded text-[10px] font-bold border ${theme.badgeSecondary}`}>
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className={`text-[11px] italic ${theme.textMuted}`}>No custom tags assigned</span>
+                )}
               </div>
 
               <div>
@@ -439,6 +513,73 @@ export function ItemManager({ items, setItems, recipes = [] }) {
                       </button>
                     );
                   })}
+                </div>
+              </div>
+
+              {/* Custom Tags Field */}
+              <div className={`p-3 rounded-lg border space-y-2 ${theme.panelBg} ${theme.border}`}>
+                <label className={`block text-xs font-bold uppercase tracking-wider ${theme.textMuted}`}>
+                  Custom Tags (e.g. #ore, #plants, #trash)
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Type a tag and press enter or click Add..."
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleAddTag();
+                      }
+                    }}
+                    className={`flex-1 rounded px-2.5 py-1.5 text-xs focus:outline-none ${theme.inputBg}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleAddTag()}
+                    className={`px-3 py-1.5 rounded text-xs font-bold ${theme.buttonSecondary}`}
+                  >
+                    Add Tag
+                  </button>
+                </div>
+
+                {/* Display Current Tags */}
+                {formData.tags && formData.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {formData.tags.map(tag => (
+                      <span
+                        key={tag}
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold border ${theme.badgeSecondary}`}
+                      >
+                        {tag}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTag(tag)}
+                          className="hover:text-rose-400"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Quick Suggestion Chips */}
+                <div className="pt-1">
+                  <span className={`block text-[10px] font-bold uppercase mb-1 ${theme.textMuted}`}>Quick Tag Suggestions:</span>
+                  <div className="flex flex-wrap gap-1">
+                    {['#ore', '#plants', '#trash', '#fuel', '#raw', '#component', '#gear'].map(sug => (
+                      <button
+                        type="button"
+                        key={sug}
+                        onClick={() => handleAddTag(sug)}
+                        className="text-[10px] px-1.5 py-0.5 rounded border border-current/20 hover:border-current opacity-80"
+                      >
+                        + {sug}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 

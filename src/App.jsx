@@ -290,6 +290,9 @@ function MainApp() {
             conditions={data.conditions}
             setConditions={setConditions}
             recipes={data.recipes}
+            setRecipes={setRecipes}
+            items={data.items}
+            setItems={setItems}
           />
         )}
 

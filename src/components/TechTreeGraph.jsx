@@ -114,6 +114,16 @@ const CustomItemNode = ({ data, selected }) => {
         </p>
       )}
 
+      {Array.isArray(item?.tags) && item.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-1">
+          {item.tags.map(tag => (
+            <span key={tag} className="text-[8px] font-bold px-1 py-0.2 rounded border border-current/40">
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+
       <div className="flex justify-between items-center text-[9px] font-bold opacity-80 mt-1.5 pt-1 border-t border-current/20">
         <span>In: {recipesProducing?.length || 0}</span>
         <span>Out: {recipesUsing?.length || 0}</span>
@@ -175,6 +185,14 @@ const CustomRecipeNode = ({ data, selected }) => {
               {cond.name}
             </span>
           ))}
+        </div>
+      )}
+
+      {/* Fuel badge */}
+      {(recipe?.fuelItemId || conditions?.some(c => c.fuelItemId)) && (
+        <div className="mt-1 flex items-center gap-0.5 text-[8px] font-bold text-amber-400">
+          <Flame className="w-2.5 h-2.5" />
+          <span>Fuel: {recipe?.fuelItemId || conditions?.find(c => c.fuelItemId)?.fuelItemId}</span>
         </div>
       )}
 
@@ -569,6 +587,18 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
                     {selectedNodeData.item.category}
                   </span>
                 </div>
+                {Array.isArray(selectedNodeData.item.tags) && selectedNodeData.item.tags.length > 0 && (
+                  <div>
+                    <span className={`block text-[10px] uppercase font-bold mb-1 ${theme.textMuted}`}>Custom Tags:</span>
+                    <div className="flex flex-wrap gap-1">
+                      {selectedNodeData.item.tags.map(t => (
+                        <span key={t} className={`px-2 py-0.5 rounded text-[10px] font-bold border ${theme.badgeSecondary}`}>
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {selectedNodeData.item.description && (
                   <p className="italic opacity-80">{selectedNodeData.item.description}</p>
                 )}
