@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Plus, Search, Edit2, Trash2, Scroll, ArrowRight, Clock,
-  X, Check, Layers
+  X, Check, Layers, Flame
 } from 'lucide-react';
 import { getItemIconComponent } from './ItemManager';
 import { getConditionIconComponent } from './ConditionManager';
@@ -23,6 +23,8 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
     craftTimeSeconds: 1,
     inputs: [{ itemId: '', quantity: 1 }],
     conditionIds: [],
+    fuelItemId: '',
+    fuelQuantity: 0,
     notes: ''
   });
 
@@ -49,6 +51,8 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
       craftTimeSeconds: 1,
       inputs: [{ itemId: items.length > 0 ? items[0].id : '', quantity: 1 }],
       conditionIds: [],
+      fuelItemId: '',
+      fuelQuantity: 0,
       notes: ''
     });
     setIsModalOpen(true);
@@ -64,6 +68,8 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
       craftTimeSeconds: recipe.craftTimeSeconds || 1,
       inputs: recipe.inputs.map(i => ({ ...i })),
       conditionIds: recipe.conditionIds ? [...recipe.conditionIds] : [],
+      fuelItemId: recipe.fuelItemId || '',
+      fuelQuantity: recipe.fuelQuantity || 0,
       notes: recipe.notes || ''
     });
     setIsModalOpen(true);
@@ -266,6 +272,14 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
                         );
                       })
                     )}
+
+                    {/* Fuel Requirement Badge on Card */}
+                    {(recipe.fuelItemId || recipe.conditionIds?.some(cid => getConditionById(cid)?.fuelItemId)) && (
+                      <div className="flex items-center gap-1 border border-amber-500/50 bg-amber-950/40 text-amber-300 px-2 py-0.5 rounded text-[10px] font-bold uppercase" title="Required Fuel">
+                        <Flame className="w-3 h-3 text-amber-400" />
+                        <span>Fuel: {recipe.fuelItemId || getConditionById(recipe.conditionIds.find(cid => getConditionById(cid)?.fuelItemId))?.fuelItemId} (x{recipe.fuelQuantity || getConditionById(recipe.conditionIds.find(cid => getConditionById(cid)?.fuelItemId))?.fuelQuantity || 1})</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -411,6 +425,40 @@ export function RecipeBuilder({ items, conditions, recipes, setRecipes }) {
                       </button>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* Optional Recipe Fuel Requirement */}
+              <div className={`p-3 rounded-lg border space-y-2 ${theme.panelBg} ${theme.border}`}>
+                <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider">
+                  <Flame className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Recipe Fuel Requirement (Optional)</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="col-span-2">
+                    <label className={`block text-[10px] font-bold uppercase ${theme.textMuted} mb-1`}>
+                      Fuel Item / Energy Type
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. coal, dwarven_spirit, energy"
+                      value={formData.fuelItemId}
+                      onChange={(e) => setFormData({ ...formData, fuelItemId: e.target.value })}
+                      className={`w-full rounded px-2.5 py-1.5 text-xs focus:outline-none ${theme.inputBg}`}
+                    />
+                  </div>
+                  <div>
+                    <label className={`block text-[10px] font-bold uppercase ${theme.textMuted} mb-1`}>
+                      Amount / Craft
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={formData.fuelQuantity}
+                      onChange={(e) => setFormData({ ...formData, fuelQuantity: Math.max(0, parseInt(e.target.value) || 0) })}
+                      className={`w-full rounded px-2.5 py-1.5 text-xs focus:outline-none ${theme.inputBg}`}
+                    />
+                  </div>
                 </div>
               </div>
 

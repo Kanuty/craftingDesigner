@@ -73,6 +73,19 @@ export function CraftingCalculator({ items, conditions, recipes }) {
       });
     });
 
+    // Calculate fuel required for this recipe and its workstation conditions
+    if (recipe.fuelItemId && recipe.fuelQuantity > 0) {
+      const fuelTotal = recipe.fuelQuantity * runsNeeded;
+      aggregateRaw[recipe.fuelItemId] = (aggregateRaw[recipe.fuelItemId] || 0) + fuelTotal;
+    }
+    (recipe.conditionIds || []).forEach(condId => {
+      const cond = getConditionById(condId);
+      if (cond && cond.fuelItemId && cond.fuelQuantity > 0) {
+        const condFuelTotal = cond.fuelQuantity * runsNeeded;
+        aggregateRaw[cond.fuelItemId] = (aggregateRaw[cond.fuelItemId] || 0) + condFuelTotal;
+      }
+    });
+
     return {
       rawMaterials: aggregateRaw,
       conditionsRequired: aggregateConditions,
