@@ -36,7 +36,7 @@ import {
   Filter,
   HelpCircle
 } from 'lucide-react';
-import { useTheme } from '../utils/theme';
+import { useTheme, getContrastTextColor } from '../utils/theme';
 
 const ICON_MAP = {
   Leaf,
@@ -70,21 +70,22 @@ function renderItemIcon(iconName, defaultClass = "w-4 h-4") {
   return <Package className={defaultClass} />;
 }
 
-// Custom Node for Items
+// Custom Node for Items with vibrant multi-color entity styles
 const CustomItemNode = ({ data, selected }) => {
-  const { item, recipesUsing, recipesProducing } = data;
+  const { item, recipesUsing, recipesProducing, entityStyle } = data;
+  const textColor = getContrastTextColor(entityStyle?.bg || '#0d1d2d');
 
   return (
     <div
       className={`px-3 py-2.5 rounded-lg border font-mono transition-all shadow-lg min-w-[170px] max-w-[210px] ${
         selected
-          ? 'ring-2 ring-current font-bold'
+          ? 'ring-2 ring-current font-extrabold shadow-2xl scale-105'
           : ''
       }`}
       style={{
-        backgroundColor: data.nodeBg || '#0d1d2d',
-        borderColor: data.nodeBorder || '#00f0ff',
-        color: data.nodeText || '#c5f6ff'
+        backgroundColor: entityStyle?.bg || data.nodeBg || '#0d1d2d',
+        borderColor: entityStyle?.border || data.nodeBorder || '#00f0ff',
+        color: entityStyle?.text || textColor
       }}
     >
       <Handle
@@ -92,28 +93,28 @@ const CustomItemNode = ({ data, selected }) => {
         position={Position.Left}
         id="input"
         className="!w-3 !h-3 !border-2"
-        style={{ backgroundColor: data.nodeBorder || '#00f0ff' }}
+        style={{ backgroundColor: entityStyle?.border || data.nodeBorder || '#00f0ff' }}
       />
 
       <div className="flex items-center gap-2 mb-1.5">
-        <div className="p-1 rounded border border-current opacity-80">
+        <div className="p-1 rounded border border-current opacity-90">
           {renderItemIcon(item?.icon)}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-bold text-xs truncate uppercase tracking-wide">{item?.name}</div>
-          <span className="text-[9px] px-1.5 py-0.2 rounded border border-current opacity-80 uppercase">
+          <div className="font-extrabold text-xs truncate uppercase tracking-wide">{item?.name}</div>
+          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded border border-current opacity-90 uppercase">
             {item?.category || 'Item'}
           </span>
         </div>
       </div>
 
       {item?.description && (
-        <p className="text-[10px] opacity-75 line-clamp-2 mt-1 border-t border-current/20 pt-1 italic">
+        <p className="text-[10px] opacity-85 line-clamp-2 mt-1 border-t border-current/20 pt-1 italic">
           {item.description}
         </p>
       )}
 
-      <div className="flex justify-between items-center text-[9px] opacity-70 mt-1.5 pt-1 border-t border-current/20">
+      <div className="flex justify-between items-center text-[9px] font-bold opacity-80 mt-1.5 pt-1 border-t border-current/20">
         <span>In: {recipesProducing?.length || 0}</span>
         <span>Out: {recipesUsing?.length || 0}</span>
       </div>
@@ -123,7 +124,7 @@ const CustomItemNode = ({ data, selected }) => {
         position={Position.Right}
         id="output"
         className="!w-3 !h-3 !border-2"
-        style={{ backgroundColor: data.nodeBorder || '#00f0ff' }}
+        style={{ backgroundColor: entityStyle?.border || data.nodeBorder || '#00f0ff' }}
       />
     </div>
   );
@@ -131,19 +132,19 @@ const CustomItemNode = ({ data, selected }) => {
 
 // Custom Node for Recipes/Crafting Operations
 const CustomRecipeNode = ({ data, selected }) => {
-  const { recipe, conditions } = data;
+  const { recipe, conditions, entityStyle } = data;
 
   return (
     <div
       className={`px-3 py-2 rounded-lg border font-mono transition-all shadow-md min-w-[150px] max-w-[200px] ${
         selected
-          ? 'ring-2 ring-current font-bold'
+          ? 'ring-2 ring-current font-bold scale-105'
           : ''
       }`}
       style={{
-        backgroundColor: data.panelBg || '#031d28',
-        borderColor: data.accentColor || '#f59e0b',
-        color: data.nodeText || '#c5f6ff'
+        backgroundColor: entityStyle?.bg || data.panelBg || '#031d28',
+        borderColor: entityStyle?.border || '#f59e0b',
+        color: entityStyle?.text || '#fbbf24'
       }}
     >
       <Handle
@@ -151,14 +152,14 @@ const CustomRecipeNode = ({ data, selected }) => {
         position={Position.Left}
         id="ingredients"
         className="!w-2.5 !h-2.5 !border"
-        style={{ backgroundColor: data.accentColor || '#f59e0b' }}
+        style={{ backgroundColor: entityStyle?.border || '#f59e0b' }}
       />
 
       <div className="flex items-center gap-1.5">
         <Hammer className="w-3.5 h-3.5 shrink-0" />
         <div className="flex-1 min-w-0">
-          <div className="font-bold text-xs truncate uppercase">{recipe?.name}</div>
-          <div className="text-[9px] opacity-80">Yield: x{recipe?.outputQuantity || 1}</div>
+          <div className="font-extrabold text-xs truncate uppercase">{recipe?.name}</div>
+          <div className="text-[9px] font-bold opacity-90">Yield: x{recipe?.outputQuantity || 1}</div>
         </div>
       </div>
 
@@ -168,7 +169,7 @@ const CustomRecipeNode = ({ data, selected }) => {
           {conditions.map((cond) => (
             <span
               key={cond.id}
-              className="text-[8px] px-1 py-0.2 rounded border border-current/40 uppercase flex items-center gap-0.5"
+              className="text-[8px] font-bold px-1 py-0.2 rounded border border-current/50 uppercase flex items-center gap-0.5"
             >
               <Wrench className="w-2 h-2" />
               {cond.name}
@@ -182,7 +183,7 @@ const CustomRecipeNode = ({ data, selected }) => {
         position={Position.Right}
         id="output"
         className="!w-2.5 !h-2.5 !border"
-        style={{ backgroundColor: data.accentColor || '#f59e0b' }}
+        style={{ backgroundColor: entityStyle?.border || '#f59e0b' }}
       />
     </div>
   );
@@ -203,6 +204,17 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
 
   // Helper to extract inputs array
   const getRecipeInputs = (recipe) => recipe.inputs || recipe.ingredients || [];
+
+  // Helper to resolve entity style for item categories
+  const getItemEntityStyle = useCallback((category) => {
+    const cat = (category || '').toLowerCase();
+    if (cat === 'raw' || cat === 'material') return theme.entity?.rawMaterial;
+    if (cat === 'intermediate') return theme.entity?.intermediate;
+    if (cat === 'finished' || cat === 'craftable') return theme.entity?.craftable;
+    if (cat === 'equipment') return theme.entity?.equipment;
+    if (cat === 'consumable' || cat === 'potion') return theme.entity?.consumable;
+    return theme.entity?.craftable;
+  }, [theme]);
 
   // Generate Graph Nodes & Edges automatically
   const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
@@ -259,8 +271,8 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
       }
     });
 
-    const layerXSpacing = 300;
-    const layerYSpacing = 120;
+    const layerXSpacing = 320;
+    const layerYSpacing = 130;
     const layerCounters = new Map();
 
     const getNextPos = (depth) => {
@@ -295,6 +307,7 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
         getRecipeInputs(r).some((ing) => (ing.itemId || ing.id) === item.id)
       );
       const recipesProducing = eligibleRecipes.filter((r) => r.outputItemId === item.id);
+      const entityStyle = getItemEntityStyle(item.category);
 
       graphNodes.push({
         id: `item-${item.id}`,
@@ -304,6 +317,7 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
           item,
           recipesUsing,
           recipesProducing,
+          entityStyle,
           nodeBg: theme.nodeBg,
           nodeBorder: theme.nodeBorder,
           nodeText: theme.nodeText,
@@ -323,6 +337,7 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
         .filter(Boolean);
 
       const recipeNodeId = `recipe-${recipe.id}`;
+      const recipeStyle = theme.entity?.intermediate || { bg: '#451a03', border: '#d97706', text: '#fbbf24' };
 
       graphNodes.push({
         id: recipeNodeId,
@@ -331,6 +346,7 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
         data: {
           recipe,
           conditions: reqConditions,
+          entityStyle: recipeStyle,
           panelBg: theme.panelBg,
           nodeText: theme.nodeText,
           accentColor: theme.nodeBorder,
@@ -349,14 +365,15 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
             targetHandle: 'ingredients',
             animated: true,
             label: `x${ing.quantity}`,
-            style: { stroke: theme.nodeBorder, strokeWidth: 2 },
-            labelStyle: { fill: theme.nodeText, fontSize: 10, fontWeight: 700 },
-            labelBgStyle: { fill: theme.nodeBg, rx: 4, ry: 4 },
-            markerEnd: { type: MarkerType.ArrowClosed, color: theme.nodeBorder },
+            style: { stroke: recipeStyle.border || theme.nodeBorder, strokeWidth: 2 },
+            labelStyle: { fill: theme.textBright, fontSize: 10, fontWeight: 700 },
+            labelBgStyle: { fill: theme.panelBg, rx: 4, ry: 4 },
+            markerEnd: { type: MarkerType.ArrowClosed, color: recipeStyle.border || theme.nodeBorder },
           });
         }
       });
 
+      const outputStyle = getItemEntityStyle(outputItem.category);
       graphEdges.push({
         id: `edge-${recipe.id}-to-${recipe.outputItemId}`,
         source: recipeNodeId,
@@ -364,13 +381,13 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
         sourceHandle: 'output',
         targetHandle: 'input',
         animated: true,
-        style: { stroke: theme.nodeBorder, strokeWidth: 2.5 },
-        markerEnd: { type: MarkerType.ArrowClosed, color: theme.nodeBorder },
+        style: { stroke: outputStyle?.border || theme.nodeBorder, strokeWidth: 2.5 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: outputStyle?.border || theme.nodeBorder },
       });
     });
 
     return { nodes: graphNodes, edges: graphEdges };
-  }, [items, recipes, conditions, filterCategory, filterConditionId, searchTerm, theme]);
+  }, [items, recipes, conditions, filterCategory, filterConditionId, searchTerm, theme, getItemEntityStyle]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -393,10 +410,10 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
             <Layers className="w-4 h-4" />
           </div>
           <div>
-            <h2 className={`text-base font-bold flex items-center gap-2 uppercase tracking-wide ${theme.textBright}`}>
+            <h2 className={`text-base font-bold flex items-center gap-2 uppercase tracking-wide text-white`}>
               Tech Tree & Recipe Graph
             </h2>
-            <p className={`text-[10px] ${theme.textMuted}`}>
+            <p className={`text-[10px] opacity-80 text-white`}>
               Visual node graph showing item dependencies, workstations, and craft pathways
             </p>
           </div>
@@ -425,8 +442,8 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
           </select>
 
           {/* Workstation / Tag Filter */}
-          <div className={`flex items-center gap-1.5 px-2 py-1 rounded border ${theme.border} ${theme.panelBg}`}>
-            <Filter className="w-3.5 h-3.5" />
+          <div className={`flex items-center gap-1.5 px-2 py-1 rounded border ${theme.border} ${theme.inputBg}`}>
+            <Filter className="w-3.5 h-3.5 opacity-70" />
             <select
               value={filterConditionId}
               onChange={(e) => setFilterConditionId(e.target.value)}
@@ -477,11 +494,11 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
           />
         </ReactFlow>
 
-        {/* Color Legend Overlay */}
+        {/* Color Legend Overlay with Entity Colors */}
         {showLegend && (
-          <div className={`absolute top-4 left-4 border rounded-xl p-3 shadow-xl backdrop-blur-md z-20 text-xs space-y-2 max-w-xs ${theme.cardBg} ${theme.border}`}>
+          <div className={`absolute top-4 left-4 border rounded-xl p-3 shadow-2xl backdrop-blur-md z-20 text-xs space-y-2 max-w-xs ${theme.cardBg} ${theme.border}`}>
             <div className={`font-bold uppercase tracking-wide border-b pb-1 flex justify-between items-center ${theme.borderMuted} ${theme.textBright}`}>
-              <span>Graph Legend</span>
+              <span>Graph Multi-Color Legend</span>
               <button
                 onClick={() => setShowLegend(false)}
                 className="opacity-60 hover:opacity-100 text-[10px]"
@@ -489,18 +506,30 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
                 ✕
               </button>
             </div>
-            <div className="space-y-1 text-[11px]">
+            <div className="space-y-1.5 text-[11px] font-bold">
               <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded border border-current inline-block bg-current/20"></span>
-                <span>Node: Item Material / Product</span>
+                <span className="w-3.5 h-3.5 rounded border inline-block" style={{ backgroundColor: theme.entity?.rawMaterial.bg, borderColor: theme.entity?.rawMaterial.border }}></span>
+                <span style={{ color: theme.entity?.rawMaterial.text }}>Raw Materials / Ores</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded border border-current inline-block bg-current/40"></span>
-                <span>Node: Recipe Craft Operation</span>
+                <span className="w-3.5 h-3.5 rounded border inline-block" style={{ backgroundColor: theme.entity?.intermediate.bg, borderColor: theme.entity?.intermediate.border }}></span>
+                <span style={{ color: theme.entity?.intermediate.text }}>Intermediate / Crafting Ops</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3.5 h-3.5 rounded border inline-block" style={{ backgroundColor: theme.entity?.craftable.bg, borderColor: theme.entity?.craftable.border }}></span>
+                <span style={{ color: theme.entity?.craftable.text }}>Finished Products / Ingot</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3.5 h-3.5 rounded border inline-block" style={{ backgroundColor: theme.entity?.equipment.bg, borderColor: theme.entity?.equipment.border }}></span>
+                <span style={{ color: theme.entity?.equipment.text }}>Equipment & Gear</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3.5 h-3.5 rounded border inline-block" style={{ backgroundColor: theme.entity?.workstation.bg, borderColor: theme.entity?.workstation.border }}></span>
+                <span style={{ color: theme.entity?.workstation.text }}>Workstations & Skills</span>
               </div>
             </div>
             <div className={`text-[10px] border-t pt-1.5 ${theme.borderMuted} ${theme.textMuted}`}>
-              • Connected arrows represent component ingredient flow.
+              • Nodes adapt to entity classification for instant visual identification.
             </div>
           </div>
         )}
@@ -536,7 +565,7 @@ export default function TechTreeGraph({ items = [], recipes = [], conditions = [
               <div className="space-y-3 text-xs">
                 <div>
                   <span className={theme.textMuted}>Category: </span>
-                  <span className={`font-bold uppercase ${theme.accentText}`}>
+                  <span className={`font-bold uppercase ${selectedNodeData.entityStyle?.tag || theme.accentText}`}>
                     {selectedNodeData.item.category}
                   </span>
                 </div>

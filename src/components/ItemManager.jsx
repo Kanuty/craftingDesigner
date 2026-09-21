@@ -49,6 +49,14 @@ export function ItemManager({ items, setItems, recipes = [] }) {
 
   const categories = ['All', 'Raw', 'Intermediate', 'Finished'];
 
+  const getCategoryBadgeClass = (category) => {
+    const cat = (category || '').toLowerCase();
+    if (cat === 'raw') return theme.entity?.rawMaterial?.tag || theme.badgeSecondary;
+    if (cat === 'intermediate') return theme.entity?.intermediate?.tag || theme.badgeSecondary;
+    if (cat === 'finished') return theme.entity?.craftable?.tag || theme.badgeSecondary;
+    return theme.badgeSecondary;
+  };
+
   const filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           item.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -224,7 +232,7 @@ export function ItemManager({ items, setItems, recipes = [] }) {
                           {item.name}
                         </td>
                         <td className="py-2 px-3">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${theme.badgeSecondary}`}>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${getCategoryBadgeClass(item.category)}`}>
                             {item.category}
                           </span>
                         </td>
@@ -287,11 +295,13 @@ export function ItemManager({ items, setItems, recipes = [] }) {
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className={`p-2 rounded border ${theme.panelBg} ${theme.border}`}>
                   <span className={`block text-[10px] uppercase font-bold ${theme.textMuted}`}>Category</span>
-                  <span className={`font-bold capitalize ${theme.accentText}`}>{selectedItem.category}</span>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border inline-block mt-1 ${getCategoryBadgeClass(selectedItem.category)}`}>
+                    {selectedItem.category}
+                  </span>
                 </div>
                 <div className={`p-2 rounded border ${theme.panelBg} ${theme.border}`}>
                   <span className={`block text-[10px] uppercase font-bold ${theme.textMuted}`}>Tier</span>
-                  <span className="font-bold">Level {selectedItem.tier || 1}</span>
+                  <span className="font-bold text-sm block mt-1">Level {selectedItem.tier || 1}</span>
                 </div>
               </div>
 

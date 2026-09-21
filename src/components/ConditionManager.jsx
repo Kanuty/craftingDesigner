@@ -45,6 +45,14 @@ export function ConditionManager({ conditions, setConditions, recipes = [] }) {
 
   const types = ['All', 'workstation', 'skill', 'environment', 'tool'];
 
+  const getTypeBadgeClass = (type) => {
+    const t = (type || '').toLowerCase();
+    if (t === 'workstation') return theme.entity?.workstation?.tag || theme.badgeSecondary;
+    if (t === 'skill') return theme.entity?.skill?.tag || theme.badgeSecondary;
+    if (t === 'tool') return theme.entity?.equipment?.tag || theme.badgeSecondary;
+    return theme.badgeSecondary;
+  };
+
   const filteredConditions = conditions.filter(cond => {
     const matchesSearch = cond.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           cond.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -215,7 +223,7 @@ export function ConditionManager({ conditions, setConditions, recipes = [] }) {
                           {cond.name}
                         </td>
                         <td className="py-2 px-3">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${theme.badgeSecondary}`}>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${getTypeBadgeClass(cond.type)}`}>
                             {cond.type}
                           </span>
                         </td>
@@ -278,11 +286,13 @@ export function ConditionManager({ conditions, setConditions, recipes = [] }) {
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className={`p-2 rounded border ${theme.panelBg} ${theme.border}`}>
                   <span className={`block text-[10px] uppercase font-bold ${theme.textMuted}`}>Type</span>
-                  <span className={`font-bold capitalize ${theme.accentText}`}>{selectedCondition.type}</span>
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border inline-block mt-1 ${getTypeBadgeClass(selectedCondition.type)}`}>
+                    {selectedCondition.type}
+                  </span>
                 </div>
                 <div className={`p-2 rounded border ${theme.panelBg} ${theme.border}`}>
                   <span className={`block text-[10px] uppercase font-bold ${theme.textMuted}`}>Level / Req</span>
-                  <span className="font-bold">{selectedCondition.level || 'Basic'}</span>
+                  <span className="font-bold text-sm block mt-1">{selectedCondition.level || 'Basic'}</span>
                 </div>
               </div>
 
